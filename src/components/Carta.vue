@@ -1,46 +1,81 @@
 <template>
-  <v-card :style="rotacao"
-          class="mx-auto white cartaClass"
-          min-width="110"
-          min-height="170"
-          elevation="5"
+  <v-card
+    :style="rotacao"
+    :class="['mx-auto', 'cartaClass', virada ? 'grey darken-2' : 'white', { 'carta-manilha': manilha }]"
+    min-width="70"
+    min-height="100"
+    elevation="5"
   >
-    <v-card-title :class="corDaCarta()">
-      <h1 class="pl-5 font-weight-black display-3">
-        {{ carta.substring(0, 1) }}
+    <v-card-title v-if="!virada" :class="corDaCarta" class="justify-center pa-2">
+      <h2 class="font-weight-black">
+        {{ carta.rank }}
         <br>
-        {{ carta.substring(1) }}
-      </h1>
+        <span class="naipe">{{ simboloNaipe }}</span>
+      </h2>
+    </v-card-title>
+    <v-card-title v-else class="justify-center pa-2 fill-height">
+      <v-icon color="grey lighten-1">mdi-cards-playing-outline</v-icon>
     </v-card-title>
   </v-card>
 </template>
 
 <script>
-  export default {
-    name: 'Carta',
+const SIMBOLOS = {
+  ouros: '♦',
+  espadas: '♠',
+  copas: '♥',
+  paus: '♣',
+}
 
-    props: {
-      carta: String,
-      rotacao: String,
+export default {
+  name: 'Carta',
+
+  props: {
+    carta: {
+      type: Object,
+      default: null,
     },
-
-    methods: {
-      corDaCarta() {
-        return this.carta.match(/[♥♦]/g) ? 'red--text' : 'black--text'
-      }
+    rotacao: {
+      type: String,
+      default: '',
     },
+    virada: {
+      type: Boolean,
+      default: false,
+    },
+    manilha: {
+      type: Boolean,
+      default: false,
+    },
+  },
 
-  }
+  computed: {
+    simboloNaipe () {
+      return this.carta ? SIMBOLOS[this.carta.suit] : ''
+    },
+    corDaCarta () {
+      if (!this.carta) return ''
+      return this.carta.suit === 'ouros' || this.carta.suit === 'copas' ? 'red--text' : 'black--text'
+    },
+  },
+}
 </script>
 
-
 <style type="text/css" scoped>
-.cartaClass{
+.cartaClass {
   transition: all .2s ease-in-out;
 }
 
-.cartaClass:hover{
-  transform: scale(1.2) !important;
+.cartaClass:hover {
+  transform: scale(1.1) !important;
   cursor: pointer;
+}
+
+.naipe {
+  font-size: 1.3rem;
+}
+
+.carta-manilha {
+  outline: 3px solid #ffd600;
 }
 </style>
