@@ -51,5 +51,22 @@ npm run build
 npm run lint
 ```
 
+## Deploy no Render.com
+
+O servidor Node serve o front-end buildado + a API Socket.io na mesma porta (que o Render atribui via `PORT` env var).
+
+### Passos:
+
+1. Push o repositório para GitHub.
+2. No [Render.com](https://render.com), crie um novo **Web Service**:
+   - Conecte seu GitHub
+   - Selecione este repositório
+   - **Build Command**: `npm install && npm run build && npm run server:install`
+   - **Start Command**: `npm run server`
+   - **Node Version**: `18` (ou acima)
+3. Render vai detectar `server/package.json` e fazer o deploy.
+
+O cliente automaticamente conecta na mesma porta que recebeu a página, então funciona sem mudanças de configuração.
+
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).

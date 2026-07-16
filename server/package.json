@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "node --watch src/index.js",
-    "test": "node --test"
+    "test": "node --test",
+    "build": "cd .. && npm run build"
   },
   "dependencies": {
     "cors": "^2.8.5",

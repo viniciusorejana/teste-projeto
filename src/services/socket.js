@@ -1,16 +1,11 @@
 import { io } from 'socket.io-client'
 
-// Sem VUE_APP_SERVER_URL definido, assume que o back-end roda no mesmo host
-// que serviu a página (porta 4000). Isso é o que faz o jogo funcionar tanto
-// em localhost quanto para quem acessa pelo IP público/da rede da máquina
-// que está hospedando — um valor fixo tipo "localhost" quebraria a conexão
-// (e pareceria erro de CORS) pra qualquer um que não seja o próprio host.
-function urlPadraoDoServidor () {
-  const { protocol, hostname } = window.location
-  return `${protocol}//${hostname}:4000`
-}
-
-const URL = process.env.VUE_APP_SERVER_URL || urlPadraoDoServidor()
+// Se VUE_APP_SERVER_URL estiver definido (deploy com servidores separados),
+// usa esse valor. Senão, detecta o servidor dinamicamente: o front-end foi
+// servido por algum servidor HTTP, então o Socket.io do back-end está no
+// mesmo host (window.location.origin, que já inclui protocol+hostname+porta).
+// Isso funciona em localhost, IP público, render.com, etc.
+const URL = process.env.VUE_APP_SERVER_URL || window.location.origin
 
 export const socket = io(URL, {
   autoConnect: false,
