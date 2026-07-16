@@ -2,16 +2,17 @@ const test = require('node:test')
 const assert = require('node:assert/strict')
 const { criarBaralho, manilhaRank, compararCartas } = require('../src/game/deck')
 
-test('baralho tem 40 cartas únicas', () => {
+test('baralho tem 52 cartas únicas (baralho sujo)', () => {
   const baralho = criarBaralho()
-  assert.equal(baralho.length, 40)
+  assert.equal(baralho.length, 52)
   const ids = new Set(baralho.map((c) => `${c.rank}-${c.suit}`))
-  assert.equal(ids.size, 40)
+  assert.equal(ids.size, 52)
 })
 
 test('manilha é o próximo rank após a vira, com rotação', () => {
+  // Com 13 ranks: 4,5,6,7,8,9,10,J,Q,K,A,2,3
   assert.equal(manilhaRank({ rank: '4', suit: 'paus' }), '5')
-  assert.equal(manilhaRank({ rank: '7', suit: 'paus' }), 'Q')
+  assert.equal(manilhaRank({ rank: '7', suit: 'paus' }), '8')
   assert.equal(manilhaRank({ rank: '3', suit: 'paus' }), '4')
 })
 

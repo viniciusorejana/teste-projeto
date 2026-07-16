@@ -3,6 +3,9 @@
     <div class="d-flex justify-space-between align-center white--text px-2">
       <span class="font-weight-bold">Rodada {{ gameState.rodadaNumero }}</span>
       <span v-if="gameState.tamanhoMao" class="caption">{{ gameState.tamanhoMao }} carta(s) na mão</span>
+      <span v-if="gameState.ultimoResultado && gameState.ultimoResultado.vencedorDaRodada" class="font-weight-bold" style="color: #ffd600;">
+        ✓ {{ gameState.ultimoResultado.vencedorDaRodada.name }} venceu!
+      </span>
     </div>
 
     <div class="d-flex justify-center flex-wrap my-2">

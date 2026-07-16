@@ -24,6 +24,10 @@
       </v-icon>
     </div>
 
+    <p v-if="jogador.rodasVencidas > 0" class="caption white--text font-weight-bold mb-1" style="color: #ffd600;">
+      ✓ {{ jogador.rodasVencidas }} rodadas
+    </p>
+
     <v-chip v-if="jogador.eliminated" x-small color="grey" text-color="white">eliminado</v-chip>
     <template v-else>
       <v-chip v-if="jogador.bid !== null && jogador.bid !== undefined" x-small class="mr-1">

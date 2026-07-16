@@ -1,8 +1,8 @@
 // Sequência do número de cartas por rodada: cresce 1, 2, 3... até o baralho
-// não comportar mais (jogadores * cartas + 1 vira <= 40), depois decresce até
+// não comportar mais (jogadores * cartas + 1 vira <= 52), depois decresce até
 // 1 e volta a crescer, oscilando enquanto o jogo durar.
 
-const TAMANHO_BARALHO = 40
+const TAMANHO_BARALHO = 52
 
 function maxCartasPorMao (numJogadores) {
   return Math.max(1, Math.floor((TAMANHO_BARALHO - 1) / numJogadores))
