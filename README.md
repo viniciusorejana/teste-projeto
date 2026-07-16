@@ -17,9 +17,14 @@ npm run server:install
 ```
 npm run dev
 ```
-Front-end em http://localhost:8080, back-end em http://localhost:4000
-(configurável via `VUE_APP_SERVER_URL` no `.env.development` e `PORT`
-no `server/`).
+Front-end em http://localhost:8080, back-end em http://localhost:4000.
+
+O front-end detecta sozinho o endereço do back-end (mesmo host da
+página, porta 4000), então também funciona para quem acessar pelo seu
+IP público/de rede (ex: `http://SEU_IP:8080`) — só é preciso liberar
+as portas 8080 e 4000 no firewall/roteador. Se o back-end estiver em
+outro host/porta, defina `VUE_APP_SERVER_URL` em `.env.development`
+(front-end) e `PORT` em `server/` (back-end).
 
 ### Só o front-end
 ```
