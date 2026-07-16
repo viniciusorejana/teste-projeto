@@ -66,7 +66,6 @@ class FodinhaGame {
       connected: true,
       eliminated: false,
       lastRoundDelta: null,
-      rodasVencidas: 0, // rodadas em que acertou o palpite (delta === 0)
     })
     if (primeiroJogador) this.ownerId = id
   }
@@ -273,8 +272,6 @@ class FodinhaGame {
       p.lives = Math.max(0, p.lives - delta)
       p.lastRoundDelta = delta
       p.eliminated = p.lives === 0
-      // Rodada vencida: acertou o palpite (delta === 0)
-      if (delta === 0) p.rodasVencidas += 1
       return { seat: p.seat, name: p.name, bid: p.bid, made: p.made, delta, lives: p.lives }
     })
     // Vencedor da rodada: quem fez mais tricks (poderia estar empatado)
@@ -356,7 +353,6 @@ class FodinhaGame {
         bid: p.bid,
         made: p.made,
         lastRoundDelta: p.lastRoundDelta,
-        rodasVencidas: p.rodasVencidas,
         handCount: p.hand.length,
         hand: this._maoVisivelPara(p, playerId, rodadaCega) ? p.hand : undefined,
       })),

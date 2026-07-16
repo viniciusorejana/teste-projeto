@@ -3,10 +3,17 @@
     <div class="d-flex justify-space-between align-center white--text px-2">
       <span class="font-weight-bold">Rodada {{ gameState.rodadaNumero }}</span>
       <span v-if="gameState.tamanhoMao" class="caption">{{ gameState.tamanhoMao }} carta(s) na mão</span>
-      <span v-if="gameState.ultimoResultado && gameState.ultimoResultado.vencedorDaRodada" class="font-weight-bold" style="color: #ffd600;">
-        ✓ {{ gameState.ultimoResultado.vencedorDaRodada.name }} venceu!
-      </span>
     </div>
+
+    <transition name="banner-vencedor-transicao">
+      <div
+        v-if="mostrarBannerVencedorDaMao"
+        class="banner-vencedor mx-auto my-2 text-center"
+      >
+        <v-icon color="#212121" large class="mr-1">mdi-trophy</v-icon>
+        <span class="banner-vencedor-texto">{{ nomeVencedorDaMao }} venceu a mão!</span>
+      </div>
+    </transition>
 
     <div class="d-flex justify-center flex-wrap my-2">
       <div v-for="j in outrosJogadores" :key="j.seat" class="ma-1">
@@ -213,6 +220,24 @@ export default {
       return j ? j.name : ''
     },
 
+    // A pausa entre vazas (mãos): o servidor congela turnoSeat em null e
+    // mantém fase 'jogando' por alguns segundos depois de resolver uma vaza,
+    // pra dar tempo de ver quem ganhou aquela mão antes de seguir.
+    mostrarBannerVencedorDaMao () {
+      return !!(
+        this.gameState.fase === 'jogando' &&
+        this.gameState.turnoSeat === null &&
+        this.gameState.ultimaVaza &&
+        !this.gameState.ultimaVaza.empate
+      )
+    },
+
+    nomeVencedorDaMao () {
+      if (!this.gameState.ultimaVaza) return ''
+      const j = this.gameState.jogadores.find((p) => p.seat === this.gameState.ultimaVaza.vencedorSeat)
+      return j ? j.name : ''
+    },
+
     fimDeJogo () {
       return this.gameState.fase === 'fim_de_jogo'
     },
@@ -305,5 +330,34 @@ export default {
 
 .carta-jogavel {
   cursor: pointer;
+}
+
+.banner-vencedor {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 28px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ffd600, #ffab00);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45);
+  width: fit-content;
+}
+
+.banner-vencedor-texto {
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #212121;
+  letter-spacing: 0.3px;
+}
+
+.banner-vencedor-transicao-enter-active,
+.banner-vencedor-transicao-leave-active {
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.banner-vencedor-transicao-enter,
+.banner-vencedor-transicao-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
 }
 </style>

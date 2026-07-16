@@ -24,8 +24,8 @@
       </v-icon>
     </div>
 
-    <p v-if="jogador.rodasVencidas > 0" class="caption white--text font-weight-bold mb-1" style="color: #ffd600;">
-      ✓ {{ jogador.rodasVencidas }} rodadas
+    <p v-if="jogador.made > 0" class="caption font-weight-bold mb-1 contador-maos">
+      ✓ {{ jogador.made }} mão(s) na rodada
     </p>
 
     <v-chip v-if="jogador.eliminated" x-small color="grey" text-color="white">eliminado</v-chip>
@@ -92,6 +92,10 @@ export default {
 
 .vidas {
   line-height: 1;
+}
+
+.contador-maos {
+  color: #e65100;
 }
 
 .etiqueta {
