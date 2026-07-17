@@ -1,9 +1,22 @@
 <template>
   <v-container fluid class="fill-height board pa-2 d-flex flex-column">
-    <div class="d-flex justify-space-between align-center white--text px-2">
+    <div class="d-flex justify-space-between align-center white--text px-2 barra-superior">
       <span class="font-weight-bold">Rodada {{ gameState.rodadaNumero }}</span>
+
+      <v-btn icon color="white" aria-label="Como jogar" @click="mostrarTutorialLocal = true">
+        <v-icon>mdi-help-circle-outline</v-icon>
+      </v-btn>
+
       <span v-if="gameState.tamanhoMao" class="caption">{{ gameState.tamanhoMao }} carta(s) na mão</span>
     </div>
+
+    <TabelaForcaCartas
+      v-model="mostrarTabelaForca"
+      :vira="gameState.vira"
+      :manilha="gameState.manilha"
+    />
+
+    <TutorialDialog v-model="mostrarTutorialLocal" />
 
     <transition name="banner-vencedor-transicao">
       <div
@@ -15,14 +28,15 @@
       </div>
     </transition>
 
-    <div class="d-flex justify-center flex-wrap my-2">
-      <div v-for="j in outrosJogadores" :key="j.seat" class="ma-1">
+    <div class="oponentes-linha my-2">
+      <div v-for="j in outrosJogadores" :key="j.seat" class="ma-1 oponente-item">
         <PlayerSeat
           :jogador="j"
           :dealer="j.seat === gameState.dealerSeat"
           :destacado="j.seat === gameState.turnoSeat"
           :carta-revelada="gameState.rodadaCega && j.hand ? j.hand[0] : null"
           :manilha="gameState.manilha"
+          :compacto="outrosJogadores.length > 3"
         />
       </div>
     </div>
@@ -39,10 +53,21 @@
     </v-alert>
 
     <div class="d-flex justify-center align-center flex-grow-1 flex-wrap">
-      <div v-if="gameState.vira" class="text-center mr-6 mb-2">
-        <p class="white--text caption mb-1">Vira</p>
-        <Carta :carta="gameState.vira" />
-        <p class="white--text caption mt-1">Manilha: {{ gameState.manilha }}</p>
+      <div class="text-center mr-6 mb-2">
+        <template v-if="gameState.vira">
+          <p class="white--text caption mb-1">Vira</p>
+          <Carta :carta="gameState.vira" />
+        </template>
+        <v-chip
+          color="secondary"
+          text-color="#212121"
+          class="font-weight-bold mt-2 chip-forca"
+          @click="mostrarTabelaForca = true"
+        >
+          <v-icon left small color="#212121">mdi-cards</v-icon>
+          <span v-if="gameState.manilha">Manilha: {{ gameState.manilha }}</span>
+          <span v-else>Força das cartas</span>
+        </v-chip>
       </div>
       <TrickArea
         :mesa-atual="gameState.mesaAtual"
@@ -70,7 +95,13 @@
       </template>
 
       <template v-else-if="gameState.fase === 'palpite'">
-        <BidSelector v-if="ehMinhaVez" :tamanho-mao="gameState.tamanhoMao" @erro="mostrarErro" />
+        <BidSelector
+          v-if="ehMinhaVez"
+          :tamanho-mao="gameState.tamanhoMao"
+          :jogadores="gameState.jogadores"
+          :meu-seat="gameState.meuAssento"
+          @erro="mostrarErro"
+        />
         <p v-else class="white--text">Aguardando palpite de {{ nomeDaVez }}...</p>
       </template>
 
@@ -81,16 +112,16 @@
       </template>
     </div>
 
-    <div v-if="mostrarMaoOculta" class="d-flex justify-center flex-wrap pb-4">
+    <div v-if="mostrarMaoOculta" class="d-flex justify-center flex-wrap mao-container">
       <div :class="['mx-1', { 'carta-jogavel': podeJogar }]" @click="jogarAsCegas">
         <Carta virada />
       </div>
     </div>
-    <div v-else-if="minhaMao.length" class="d-flex justify-center flex-wrap pb-4">
+    <div v-else-if="minhaMao.length" class="d-flex mao-container mao-scroll">
       <div
         v-for="carta in minhaMao"
         :key="cartaId(carta)"
-        :class="['mx-1', { 'carta-jogavel': podeJogar }]"
+        :class="['mx-1', 'carta-mao-item', { 'carta-jogavel': podeJogar }]"
         @click="jogar(carta)"
       >
         <Carta
@@ -101,55 +132,17 @@
       </div>
     </div>
 
-    <v-dialog v-model="mostrarResultado" max-width="420">
-      <v-card v-if="gameState.ultimoResultado">
-        <v-card-title>Resultado da rodada {{ gameState.ultimoResultado.rodada }}</v-card-title>
-        <v-card-text>
-          <v-simple-table dense>
-            <template #default>
-              <thead>
-                <tr>
-                  <th>Jogador</th>
-                  <th>Palpite</th>
-                  <th>Fez</th>
-                  <th>Perdeu</th>
-                  <th>Vidas</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="r in gameState.ultimoResultado.jogadores" :key="r.seat">
-                  <td>{{ r.name }}</td>
-                  <td>{{ r.bid }}</td>
-                  <td>{{ r.made }}</td>
-                  <td>{{ r.delta }}</td>
-                  <td>{{ r.lives }}</td>
-                </tr>
-              </tbody>
-            </template>
-          </v-simple-table>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn text @click="mostrarResultado = false">Fechar</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <ResultadoRodadaDialog v-model="mostrarResultado" :resultado="gameState.ultimoResultado" />
 
-    <v-dialog :value="fimDeJogo" max-width="400" persistent>
-      <v-card class="text-center pa-4">
-        <v-card-title class="justify-center">Fim de jogo!</v-card-title>
-        <v-card-text v-if="gameState.vencedor">
-          <strong>{{ gameState.vencedor.name }}</strong> venceu a partida!
-        </v-card-text>
-        <v-card-actions class="d-flex flex-column">
-          <v-btn v-if="souDono" block color="success" :loading="reiniciando" @click="jogarNovamente">
-            Jogar novamente
-          </v-btn>
-          <p v-else class="caption mt-2">Aguardando {{ nomeDono }} decidir se joga de novo...</p>
-          <v-btn text class="mt-2" @click="sair">Sair</v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <FimDeJogoDialog
+      :value="fimDeJogo"
+      :vencedor="gameState.vencedor"
+      :sou-dono="souDono"
+      :nome-dono="nomeDono"
+      :reiniciando="reiniciando"
+      @jogar-novamente="jogarNovamente"
+      @sair="sair"
+    />
 
     <v-snackbar v-model="temErro" color="error" timeout="3000">{{ erro }}</v-snackbar>
   </v-container>
@@ -158,6 +151,10 @@
 <script>
 import { mapState, mapGetters } from 'vuex'
 import Carta from './Carta.vue'
+import TabelaForcaCartas from './TabelaForcaCartas.vue'
+import ResultadoRodadaDialog from './ResultadoRodadaDialog.vue'
+import FimDeJogoDialog from './FimDeJogoDialog.vue'
+import TutorialDialog from './TutorialDialog.vue'
 import PlayerSeat from './PlayerSeat.vue'
 import BidSelector from './BidSelector.vue'
 import TrickArea from './TrickArea.vue'
@@ -165,12 +162,14 @@ import TrickArea from './TrickArea.vue'
 export default {
   name: 'GameBoard',
 
-  components: { Carta, PlayerSeat, BidSelector, TrickArea },
+  components: { Carta, PlayerSeat, BidSelector, TrickArea, TabelaForcaCartas, ResultadoRodadaDialog, FimDeJogoDialog, TutorialDialog },
 
   data: () => ({
     distribuindo: false,
     reiniciando: false,
     mostrarResultado: false,
+    mostrarTabelaForca: false,
+    mostrarTutorialLocal: false,
     erro: '',
     temErro: false,
     rotacoesCache: {},
@@ -326,6 +325,57 @@ export default {
 <style scoped>
 .board {
   min-height: 100vh;
+  min-height: 100dvh;
+  padding-top: calc(8px + env(safe-area-inset-top)) !important;
+}
+
+.barra-superior {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.chip-forca {
+  cursor: pointer;
+}
+
+.oponentes-linha {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 599px) {
+  .oponentes-linha {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    justify-content: flex-start;
+    padding: 0 4px;
+  }
+
+  .oponente-item {
+    flex: 0 0 auto;
+  }
+}
+
+.mao-container {
+  padding-bottom: calc(16px + env(safe-area-inset-bottom));
+}
+
+.mao-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  -webkit-overflow-scrolling: touch;
+  flex-wrap: nowrap;
+  /* As cartas da mão giram um pouco (rotacaoParaCarta); sem essa folga no
+     topo, o overflow-y: hidden (necessário pro scroll horizontal) corta a
+     ponta da carta que a rotação empurra pra cima. */
+  padding-top: 14px;
+}
+
+.carta-mao-item {
+  flex: 0 0 auto;
+  scroll-snap-align: center;
 }
 
 .carta-jogavel {

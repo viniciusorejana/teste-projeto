@@ -4,12 +4,17 @@
       Aguardando jogadas...
     </div>
     <div v-for="jogada in mesaAtual" :key="jogada.seat" class="text-center mx-2 mb-2">
-      <div :class="{ 'carta-anulada': anuladas.has(jogada.seat) }">
+      <div :class="{ 'carta-anulada': anuladas.has(jogada.seat), 'carta-ganhando': jogada.seat === seatGanhando }">
         <Carta :carta="jogada.carta" :manilha="jogada.carta.rank === manilha" />
       </div>
       <p class="white--text caption mt-1 mb-0">
         {{ nomeDoAssento(jogada.seat) }}
-        <span v-if="anuladas.has(jogada.seat)" class="anulada-label">anulada</span>
+        <span v-if="anuladas.has(jogada.seat)" class="anulada-label">
+          <v-icon x-small color="#fff59d">mdi-cancel</v-icon> anulada
+        </span>
+        <span v-else-if="jogada.seat === seatGanhando" class="ganhando-label">
+          <v-icon x-small color="#ffd600">mdi-trophy</v-icon> ganhando
+        </span>
       </p>
     </div>
   </div>
@@ -17,6 +22,7 @@
 
 <script>
 import Carta from './Carta.vue'
+import { RANKS, SUITS } from '../constants/cartas'
 
 export default {
   name: 'TrickArea',
@@ -60,12 +66,38 @@ export default {
 
       return anuladasSet
     },
+
+    // Espelha server/src/game/deck.js (compararCartas): entre as cartas ainda
+    // elegíveis (não anuladas), acha quem está vencendo a vaza até agora.
+    seatGanhando () {
+      const elegiveis = this.mesaAtual.filter((j) => !this.anuladas.has(j.seat))
+      if (elegiveis.length === 0) return null
+
+      let melhor = elegiveis[0]
+      for (const atual of elegiveis.slice(1)) {
+        if (this.compararCartas(atual.carta, melhor.carta) > 0) melhor = atual
+      }
+      return melhor.seat
+    },
   },
 
   methods: {
     nomeDoAssento (seat) {
       const jogador = this.jogadores.find((j) => j.seat === seat)
       return jogador ? jogador.name : ''
+    },
+
+    ehManilha (carta) {
+      return carta.rank === this.manilha
+    },
+
+    compararCartas (a, b) {
+      const aManilha = this.ehManilha(a)
+      const bManilha = this.ehManilha(b)
+      if (aManilha && bManilha) return SUITS.indexOf(a.suit) - SUITS.indexOf(b.suit)
+      if (aManilha) return 1
+      if (bManilha) return -1
+      return RANKS.indexOf(a.rank) - RANKS.indexOf(b.rank)
     },
   },
 }
@@ -86,8 +118,22 @@ export default {
   filter: grayscale(1);
 }
 
-.anulada-label {
-  color: #ffd600;
+.carta-ganhando {
+  outline: 3px solid #ffd600;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(255, 214, 0, 0.7);
+}
+
+.anulada-label,
+.ganhando-label {
   font-weight: bold;
+}
+
+.anulada-label {
+  color: #fff59d;
+}
+
+.ganhando-label {
+  color: #ffd600;
 }
 </style>

@@ -1,14 +1,13 @@
 <template>
   <v-card
-    :class="['pa-2', 'text-center', 'assento', { 'assento-dealer': dealer, 'assento-vez': destacado }]"
+    :class="['pa-2', 'text-center', 'assento', { 'assento-dealer': dealer, 'assento-vez': destacado, 'assento-compacto': compacto }]"
     elevation="4"
-    min-width="110"
   >
-    <v-avatar :color="jogador.color" size="40">
+    <v-avatar :color="jogador.color" :size="compacto ? 32 : 40">
       <span class="white--text font-weight-bold">{{ inicial }}</span>
     </v-avatar>
 
-    <p :class="['mb-0', 'mt-1', 'caption', { 'font-weight-black': destacado }]">
+    <p :class="['mb-0', 'mt-1', 'nome-jogador', { 'font-weight-black': destacado }]">
       {{ jogador.name }}
       <span v-if="souEu">(você)</span>
     </p>
@@ -17,7 +16,8 @@
       <v-icon
         v-for="i in 5"
         :key="i"
-        x-small
+        :small="!compacto"
+        :x-small="compacto"
         :color="jogador.lives >= i ? 'red' : 'grey lighten-1'"
       >
         {{ jogador.lives >= i ? 'mdi-heart' : 'mdi-heart-outline' }}
@@ -40,6 +40,7 @@
       <Carta
         :carta="cartaRevelada"
         :manilha="cartaRevelada.rank === manilha"
+        small
         class="carta-mini"
       />
     </div>
@@ -64,6 +65,7 @@ export default {
     souEu: { type: Boolean, default: false },
     cartaRevelada: { type: Object, default: null },
     manilha: { type: String, default: null },
+    compacto: { type: Boolean, default: false },
   },
 
   computed: {
@@ -79,6 +81,17 @@ export default {
   border: 3px solid transparent;
   position: relative;
   transition: all .2s ease-in-out;
+  min-width: 110px;
+}
+
+.assento-compacto {
+  min-width: 84px;
+  padding: 4px !important;
+}
+
+.nome-jogador {
+  font-size: 0.8rem;
+  line-height: 1.1;
 }
 
 .assento-dealer {

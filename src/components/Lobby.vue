@@ -3,15 +3,18 @@
     <v-row align="center" justify="center">
       <v-col cols="12" sm="8" md="5">
         <v-card class="pa-4" elevation="8">
-          <v-card-title class="justify-center">
-            <div class="text-center">
-              <p class="mb-1">Código da sala</p>
-              <p class="display-1 font-weight-black">
-                {{ gameState.roomCode }}
-                <v-btn icon small @click="copiarCodigo">
-                  <v-icon small>mdi-content-copy</v-icon>
-                </v-btn>
-              </p>
+          <v-card-title class="flex-column">
+            <p class="mb-1 text-center">Código da sala</p>
+            <p class="codigo-sala text-center mb-2">{{ gameState.roomCode }}</p>
+            <div class="d-flex justify-center flex-wrap">
+              <v-btn text small color="primary" class="ma-1" @click="copiarCodigo">
+                <v-icon small left>mdi-content-copy</v-icon>
+                Copiar
+              </v-btn>
+              <v-btn text small color="primary" class="ma-1" @click="compartilhar">
+                <v-icon small left>mdi-share-variant</v-icon>
+                Compartilhar
+              </v-btn>
             </div>
           </v-card-title>
 
@@ -32,6 +35,19 @@
                     <v-chip v-if="!j.connected" x-small color="grey" text-color="white" class="ml-1">
                       offline
                     </v-chip>
+                  </v-list-item-title>
+                </v-list-item-content>
+              </v-list-item>
+
+              <v-list-item v-for="n in slotsVazios" :key="'vazio-' + n" class="slot-vazio">
+                <v-list-item-avatar size="32">
+                  <v-avatar size="32" color="grey lighten-3" class="avatar-vazio">
+                    <v-icon small color="grey">mdi-account-outline</v-icon>
+                  </v-avatar>
+                </v-list-item-avatar>
+                <v-list-item-content>
+                  <v-list-item-title class="font-italic grey--text">
+                    aguardando jogador...
                   </v-list-item-title>
                 </v-list-item-content>
               </v-list-item>
@@ -59,15 +75,29 @@
             <v-alert v-if="erro" type="error" dense class="mt-4">
               {{ erro }}
             </v-alert>
+
+            <v-divider class="mt-4 mb-2" />
+            <div class="text-center">
+              <v-btn text small color="grey darken-1" @click="sair">
+                <v-icon small left>mdi-exit-to-app</v-icon>
+                Sair da sala
+              </v-btn>
+            </div>
           </v-card-text>
         </v-card>
       </v-col>
     </v-row>
+
+    <v-snackbar v-model="copiado" :timeout="2000" color="success">
+      Código copiado!
+    </v-snackbar>
   </v-container>
 </template>
 
 <script>
 import { mapState, mapGetters } from 'vuex'
+
+const MIN_JOGADORES = 2
 
 export default {
   name: 'Lobby',
@@ -75,6 +105,7 @@ export default {
   data: () => ({
     iniciando: false,
     erro: null,
+    copiado: false,
   }),
 
   computed: {
@@ -84,6 +115,14 @@ export default {
     nomeDono () {
       const dono = this.gameState.jogadores.find((j) => j.seat === this.gameState.ownerSeat)
       return dono ? dono.name : 'o dono da sala'
+    },
+
+    slotsVazios () {
+      return Math.max(0, MIN_JOGADORES - this.gameState.jogadores.length)
+    },
+
+    linkConvite () {
+      return window.location.href
     },
   },
 
@@ -101,8 +140,60 @@ export default {
     },
 
     copiarCodigo () {
-      navigator.clipboard && navigator.clipboard.writeText(this.gameState.roomCode)
+      if (!navigator.clipboard) return
+      navigator.clipboard.writeText(this.gameState.roomCode).then(() => {
+        this.copiado = true
+      }).catch(() => {
+        // falha silenciosa: sem permissão de clipboard etc.
+      })
+    },
+
+    async compartilhar () {
+      if (navigator.share) {
+        try {
+          await navigator.share({
+            title: 'Fodinha',
+            text: 'Entra na minha sala de Fodinha!',
+            url: this.linkConvite,
+          })
+        } catch (err) {
+          // usuário cancelou o compartilhamento ou o browser recusou: sem tratamento necessário.
+        }
+        return
+      }
+
+      if (navigator.clipboard) {
+        try {
+          await navigator.clipboard.writeText(this.linkConvite)
+          this.copiado = true
+        } catch (err) {
+          // falha silenciosa
+        }
+      }
+    },
+
+    sair () {
+      this.$store.dispatch('sairDaSala')
+      this.$router.push({ name: 'Home' })
     },
   },
 };
 </script>
+
+<style scoped>
+.codigo-sala {
+  font-size: clamp(2rem, 10vw, 3rem);
+  font-weight: 900;
+  letter-spacing: .3rem;
+  line-height: 1.1;
+  margin-bottom: 0;
+}
+
+.slot-vazio {
+  opacity: .55;
+}
+
+.avatar-vazio {
+  border: 2px dashed rgba(0, 0, 0, .3) !important;
+}
+</style>

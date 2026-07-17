@@ -1,11 +1,10 @@
 <template>
   <v-card
     :style="rotacao"
-    :class="['mx-auto', 'cartaClass', virada ? 'grey darken-2' : 'white', { 'carta-manilha': manilha }]"
-    min-width="70"
-    min-height="100"
+    :class="['mx-auto', 'cartaClass', virada ? 'grey darken-2' : 'white', { 'carta-manilha': manilha, 'carta-pequena': small }]"
     elevation="5"
   >
+    <v-icon v-if="manilha" color="#212121" class="coroa-manilha" small>mdi-crown</v-icon>
     <v-card-title v-if="!virada" :class="corDaCarta" class="justify-center pa-2">
       <h2 class="font-weight-black">
         {{ carta.rank }}
@@ -47,6 +46,10 @@ export default {
       type: Boolean,
       default: false,
     },
+    small: {
+      type: Boolean,
+      default: false,
+    },
   },
 
   computed: {
@@ -64,11 +67,33 @@ export default {
 <style type="text/css" scoped>
 .cartaClass {
   transition: all .2s ease-in-out;
+  width: clamp(56px, 16vw, 80px);
+  min-height: 100px;
+  position: relative;
 }
 
-.cartaClass:hover {
-  transform: scale(1.1) !important;
-  cursor: pointer;
+.carta-pequena {
+  width: clamp(40px, 11vw, 56px);
+  min-height: 70px;
+}
+
+.carta-pequena .naipe {
+  font-size: 0.9rem;
+}
+
+.carta-pequena h2 {
+  font-size: 1rem;
+}
+
+@media (hover: hover) {
+  .cartaClass:hover {
+    transform: scale(1.1) !important;
+    cursor: pointer;
+  }
+}
+
+.cartaClass:active {
+  transform: scale(0.96);
 }
 
 .naipe {
@@ -77,5 +102,15 @@ export default {
 
 .carta-manilha {
   outline: 3px solid #ffd600;
+}
+
+.coroa-manilha {
+  position: absolute;
+  top: -10px;
+  right: -6px;
+  background: #ffd600;
+  border-radius: 50%;
+  padding: 2px;
+  z-index: 2;
 }
 </style>
