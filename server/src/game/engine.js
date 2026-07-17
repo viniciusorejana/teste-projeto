@@ -6,6 +6,9 @@ const { cartasElegiveis } = require('./vaza')
 const VIDAS_INICIAIS = 5
 const MAX_JOGADORES = 6
 
+const ESTRATEGIAS_AUTOMATICAS = ['maior', 'menor', 'aleatoria']
+const ESTRATEGIA_AUTOMATICA_PADRAO = 'aleatoria'
+
 const FASES = {
   LOBBY: 'lobby',
   AGUARDANDO_DISTRIBUIR: 'aguardando_distribuir',
@@ -39,11 +42,17 @@ class FodinhaGame {
     this.ultimaVaza = null
     this.ultimoResultado = null
     this.vencedor = null
+    // Timestamp (Date.now() + ms) de quando o turno atual expira e uma jogada
+    // automática é feita no lugar do jogador; null = sem prazo em andamento
+    // (fora de palpite/jogando, ou rodada às cegas jogando sozinha). Só
+    // controla o valor exibido aos clientes — quem agenda e dispara a jogada
+    // automática de fato é a camada de sockets (handlers.js).
+    this.turnoExpiraEm = null
   }
 
   // ---- Sala / lobby ----
 
-  adicionarJogador ({ id, name, color, socketId }) {
+  adicionarJogador ({ id, name, color, socketId, autoPlayStrategy }) {
     if (this.fase !== FASES.LOBBY) {
       throw new Error('Não é possível entrar: a partida já começou.')
     }
@@ -66,8 +75,24 @@ class FodinhaGame {
       connected: true,
       eliminated: false,
       lastRoundDelta: null,
+      autoPlayStrategy: ESTRATEGIAS_AUTOMATICAS.includes(autoPlayStrategy)
+        ? autoPlayStrategy
+        : ESTRATEGIA_AUTOMATICA_PADRAO,
     })
     if (primeiroJogador) this.ownerId = id
+  }
+
+  // Preferência de jogada automática (usada quando o tempo de turno esgota):
+  // 'maior' joga sempre a carta mais forte da mão, 'menor' a mais fraca,
+  // 'aleatoria' sorteia entre as cartas da mão. Pode ser trocada a qualquer
+  // momento, inclusive no meio da partida.
+  atualizarEstrategiaAutomatica (playerId, estrategia) {
+    if (!ESTRATEGIAS_AUTOMATICAS.includes(estrategia)) {
+      throw new Error('Estratégia de jogada automática inválida.')
+    }
+    const jogador = this.players.find((p) => p.id === playerId)
+    if (!jogador) throw new Error('Jogador não encontrado na sala.')
+    jogador.autoPlayStrategy = estrategia
   }
 
   // Chamado quando um socket cai. Na lobby o jogador é removido de vez; em
@@ -234,6 +259,54 @@ class FodinhaGame {
     return true
   }
 
+  // ---- Ações automáticas (usadas pela camada de sockets quando o tempo do
+  // turno esgota) ----
+  // Sorteia um palpite válido para o jogador, já respeitando a regra do
+  // "fecha a conta" quando ele for o último a palpitar (mesma lógica de
+  // registrarPalpite, sem lançar erro: sempre existe pelo menos uma opção
+  // válida entre 0 e o tamanho da mão).
+  escolherPalpiteAutomatico (playerId) {
+    const tamanhoMao = this.tamanhoMaoEstado.cartas
+    const ativos = this.jogadoresAtivos()
+    const faltamPalpitar = ativos.filter((p) => p.bid === null)
+    const souUltimoAPalpitar = faltamPalpitar.length === 1
+
+    const opcoes = []
+    for (let i = 0; i <= tamanhoMao; i++) opcoes.push(i)
+
+    if (souUltimoAPalpitar && tamanhoMao !== 1) {
+      const somaOutros = ativos.reduce((acc, p) => (p.id === playerId ? acc : acc + p.bid), 0)
+      const proibido = palpiteProibido(tamanhoMao, somaOutros)
+      const indice = proibido !== null ? opcoes.indexOf(proibido) : -1
+      if (indice !== -1) opcoes.splice(indice, 1)
+    }
+
+    return opcoes[Math.floor(Math.random() * opcoes.length)]
+  }
+
+  // Escolhe a carta a jogar de acordo com a preferência do jogador (maior,
+  // menor ou aleatória). Com 1 carta na mão não há escolha real de qualquer
+  // forma.
+  escolherCartaAutomatica (playerId) {
+    const jogador = this.players.find((p) => p.id === playerId)
+    if (!jogador || jogador.hand.length === 0) return null
+    if (jogador.hand.length === 1) return cartaId(jogador.hand[0])
+
+    const estrategia = jogador.autoPlayStrategy || ESTRATEGIA_AUTOMATICA_PADRAO
+    if (estrategia === 'aleatoria') {
+      const carta = jogador.hand[Math.floor(Math.random() * jogador.hand.length)]
+      return cartaId(carta)
+    }
+
+    let maisForte = jogador.hand[0]
+    let maisFraca = jogador.hand[0]
+    for (const carta of jogador.hand.slice(1)) {
+      if (compararCartas(carta, maisForte, this.manilha) > 0) maisForte = carta
+      if (compararCartas(carta, maisFraca, this.manilha) < 0) maisFraca = carta
+    }
+    return cartaId(estrategia === 'menor' ? maisFraca : maisForte)
+  }
+
   _resolverVaza (ativos) {
     const elegiveis = cartasElegiveis(this.mesaAtual, this.manilha)
 
@@ -336,9 +409,11 @@ class FodinhaGame {
       manilha: this.manilha,
       dealerSeat: this.dealerSeat,
       turnoSeat: this.turnoSeat,
+      turnoExpiraEm: this.turnoExpiraEm,
       leaderSeat: this.leaderSeat,
       ownerSeat: dono ? dono.seat : null,
       meuAssento: eu ? eu.seat : null,
+      meuAutoPlayStrategy: eu ? eu.autoPlayStrategy : null,
       mesaAtual: this.mesaAtual,
       ultimaVaza: this.ultimaVaza,
       ultimoResultado: this.ultimoResultado,
@@ -364,4 +439,4 @@ class FodinhaGame {
   }
 }
 
-module.exports = { FodinhaGame, FASES, VIDAS_INICIAIS }
+module.exports = { FodinhaGame, FASES, VIDAS_INICIAIS, ESTRATEGIAS_AUTOMATICAS }

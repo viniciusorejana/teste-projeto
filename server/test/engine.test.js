@@ -353,6 +353,83 @@ test('empate na última vaza: sem líder definido, próxima rodada usa o assento
   assert.equal(game.leaderSeat, 0) // proximoAssentoAtivo(1), já que ninguém venceu a vaza anterior
 })
 
+test('jogador entra com estratégia automática "aleatoria" por padrão; turnoExpiraEm começa nulo', () => {
+  const { game, ids } = criarJogoComJogadores(2)
+  assert.equal(game.players[0].autoPlayStrategy, 'aleatoria')
+  assert.equal(game.turnoExpiraEm, null)
+
+  const estado = game.getStateFor(ids[0])
+  assert.equal(estado.meuAutoPlayStrategy, 'aleatoria')
+  assert.equal(estado.turnoExpiraEm, null)
+})
+
+test('adicionarJogador aceita uma estratégia automática explícita e ignora valores inválidos', () => {
+  const game = new FodinhaGame('ABCD')
+  game.adicionarJogador({ id: 'p0', name: 'Ana', color: 'red', socketId: 's0', autoPlayStrategy: 'maior' })
+  game.adicionarJogador({ id: 'p1', name: 'Beto', color: 'blue', socketId: 's1', autoPlayStrategy: 'nao-existe' })
+  assert.equal(game.players[0].autoPlayStrategy, 'maior')
+  assert.equal(game.players[1].autoPlayStrategy, 'aleatoria')
+})
+
+test('atualizarEstrategiaAutomatica troca a preferência do jogador e rejeita valores inválidos', () => {
+  const { game, ids } = criarJogoComJogadores(2)
+  game.atualizarEstrategiaAutomatica(ids[0], 'menor')
+  assert.equal(game.players[0].autoPlayStrategy, 'menor')
+  assert.throws(() => game.atualizarEstrategiaAutomatica(ids[0], 'invalida'), /inválida/)
+  assert.throws(() => game.atualizarEstrategiaAutomatica('token-invalido', 'maior'), /não encontrado/)
+})
+
+test('escolherPalpiteAutomatico nunca escolhe o valor proibido pelo "fecha a conta"', () => {
+  const { game, ids } = criarJogoComJogadores(2)
+  game.iniciarPartida(ids[0])
+  const dealerId = game.players[game.dealerSeat].id
+  game.distribuirCartas(dealerId)
+  game.tamanhoMaoEstado = { cartas: 3, direcao: 1 }
+
+  const primeiro = game.players[game.turnoSeat]
+  game.registrarPalpite(primeiro.id, 2)
+
+  const ultimo = game.players[game.turnoSeat]
+  for (let i = 0; i < 20; i++) {
+    const valor = game.escolherPalpiteAutomatico(ultimo.id)
+    assert.notEqual(valor, 1) // 2 + 1 fecharia a conta em 3
+  }
+})
+
+test('na mão de 1 carta, escolherPalpiteAutomatico pode escolher qualquer valor (sem exceção invertida)', () => {
+  const { game, ids } = criarJogoComJogadores(2)
+  game.iniciarPartida(ids[0])
+  const dealerId = game.players[game.dealerSeat].id
+  game.distribuirCartas(dealerId)
+  assert.equal(game.tamanhoMaoEstado.cartas, 1)
+
+  const primeiro = game.players[game.turnoSeat]
+  game.registrarPalpite(primeiro.id, 0)
+  const ultimo = game.players[game.turnoSeat]
+  assert.doesNotThrow(() => {
+    const valor = game.escolherPalpiteAutomatico(ultimo.id)
+    game.registrarPalpite(ultimo.id, valor)
+  })
+})
+
+test('escolherCartaAutomatica respeita a estratégia maior/menor e nunca falha com 1 carta na mão', () => {
+  const { game, ids } = criarJogoComJogadores(2)
+  game.iniciarPartida(ids[0])
+  const dealerId = game.players[game.dealerSeat].id
+  game.distribuirCartas(dealerId)
+  game.manilha = '6' // evita que qualquer uma das cartas abaixo vire manilha
+  game.players[0].hand = [{ rank: '4', suit: 'paus' }, { rank: 'A', suit: 'paus' }, { rank: '7', suit: 'paus' }]
+
+  game.atualizarEstrategiaAutomatica(ids[0], 'maior')
+  assert.equal(game.escolherCartaAutomatica(ids[0]), cartaId({ rank: 'A', suit: 'paus' }))
+
+  game.atualizarEstrategiaAutomatica(ids[0], 'menor')
+  assert.equal(game.escolherCartaAutomatica(ids[0]), cartaId({ rank: '4', suit: 'paus' }))
+
+  game.players[0].hand = [{ rank: '7', suit: 'ouros' }]
+  assert.equal(game.escolherCartaAutomatica(ids[0]), cartaId({ rank: '7', suit: 'ouros' }))
+})
+
 test('jogarCarta sem cartaId falha se houver mais de uma carta na mão', () => {
   const { game, ids } = criarJogoComJogadores(2)
   game.iniciarPartida(ids[0])

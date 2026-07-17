@@ -169,7 +169,7 @@
                 </div>
               </div>
               <p class="black--text mt-3 mb-0 text-center">
-                Ouros é a manilha mais forte, paus é a mais fraca.
+                Paus é a manilha mais forte, ouros é a mais fraca.
               </p>
             </div>
           </v-window-item>
@@ -320,10 +320,10 @@ export default {
       passo: 0,
       sequenciaRanks: ['4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', '3'],
       naipesOrdenados: [
-        { nome: 'paus', ...NAIPES.paus },
-        { nome: 'copas', ...NAIPES.copas },
-        { nome: 'espadas', ...NAIPES.espadas },
         { nome: 'ouros', ...NAIPES.ouros },
+        { nome: 'espadas', ...NAIPES.espadas },
+        { nome: 'copas', ...NAIPES.copas },
+        { nome: 'paus', ...NAIPES.paus },
       ],
     }
   },

@@ -14,6 +14,7 @@ const store = new Vuex.Store({
     minhaCor: '',
     gameState: null,
     erro: null,
+    mostrarTutorial: false,
   },
 
   getters: {
@@ -55,6 +56,9 @@ const store = new Vuex.Store({
     SET_ERRO (state, erro) {
       state.erro = erro
     },
+    SET_MOSTRAR_TUTORIAL (state, valor) {
+      state.mostrarTutorial = valor
+    },
     RESET (state) {
       state.roomCode = null
       state.meuId = null
@@ -68,22 +72,22 @@ const store = new Vuex.Store({
       if (!socket.connected) socket.connect()
     },
 
-    async criarSala ({ commit, dispatch }, { nome, cor }) {
+    async criarSala ({ commit, dispatch }, { nome, cor, autoPlayStrategy }) {
       dispatch('conectar')
       if (!socket.connected) await new Promise((resolve) => socket.once('connect', resolve))
       commit('SET_PERFIL', { nome, cor })
-      const resp = await emitir('room:create', { name: nome, color: cor })
+      const resp = await emitir('room:create', { name: nome, color: cor, autoPlayStrategy })
       commit('SET_MEU_ID', resp.playerToken)
       commit('SET_ROOM_CODE', resp.roomCode)
       salvarSessao({ roomCode: resp.roomCode, playerToken: resp.playerToken, nome, cor })
       return resp.roomCode
     },
 
-    async entrarSala ({ commit, dispatch }, { roomCode, nome, cor }) {
+    async entrarSala ({ commit, dispatch }, { roomCode, nome, cor, autoPlayStrategy }) {
       dispatch('conectar')
       if (!socket.connected) await new Promise((resolve) => socket.once('connect', resolve))
       commit('SET_PERFIL', { nome, cor })
-      const resp = await emitir('room:join', { roomCode, name: nome, color: cor })
+      const resp = await emitir('room:join', { roomCode, name: nome, color: cor, autoPlayStrategy })
       commit('SET_MEU_ID', resp.playerToken)
       commit('SET_ROOM_CODE', resp.roomCode)
       salvarSessao({ roomCode: resp.roomCode, playerToken: resp.playerToken, nome, cor })
@@ -120,6 +124,10 @@ const store = new Vuex.Store({
 
     jogarCarta (context, cartaId) {
       return emitir('card:play', { cartaId })
+    },
+
+    atualizarEstrategiaAutomatica (context, estrategia) {
+      return emitir('jogador:estrategia', { estrategia })
     },
   },
 })

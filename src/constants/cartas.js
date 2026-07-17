@@ -2,7 +2,7 @@
 // Qualquer mudança nas regras do servidor deve ser replicada aqui manualmente.
 
 export const RANKS = ['4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', '3']
-export const SUITS = ['paus', 'copas', 'espadas', 'ouros'] // ordem de força crescente para manilha
+export const SUITS = ['ouros', 'espadas', 'copas', 'paus'] // ordem de força crescente para manilha (paus/"zap" é a mais forte)
 
 function rankIndex (rank) {
   return RANKS.indexOf(rank)

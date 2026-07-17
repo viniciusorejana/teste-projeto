@@ -45,16 +45,38 @@
               </v-avatar>
             </div>
 
-            <v-btn
-              block
-              color="success"
-              class="mb-3"
-              :disabled="!podeSubmeter"
-              :loading="criando"
-              @click="criarSala"
+            <p class="mb-2 font-weight-medium">Jogada automática (se o tempo esgotar)</p>
+            <v-btn-toggle
+              v-model="autoPlayStrategy"
+              mandatory
+              dense
+              color="primary"
+              class="mb-4 toggle-estrategia"
             >
-              Criar sala
-            </v-btn>
+              <v-btn value="maior" small>Maior carta</v-btn>
+              <v-btn value="menor" small>Menor carta</v-btn>
+              <v-btn value="aleatoria" small>Aleatória</v-btn>
+            </v-btn-toggle>
+            <p class="caption grey--text text--darken-1 mt-n3 mb-4">
+              Cada jogada tem 45s. Se o tempo acabar na hora de jogar uma
+              carta, o jogo escolhe por você seguindo essa preferência — pode
+              trocar a qualquer momento durante a partida. No palpite, se o
+              tempo esgotar, a escolha é sempre um valor aleatório válido
+              (essa preferência não vale pra ele).
+            </p>
+
+            <div class="d-flex justify-center mb-3">
+              <v-btn
+                color="success"
+                rounded
+                class="btn-acao"
+                :disabled="!podeSubmeter"
+                :loading="criando"
+                @click="criarSala"
+              >
+                Criar sala
+              </v-btn>
+            </div>
 
             <v-divider class="mb-3" />
 
@@ -69,15 +91,18 @@
               @focus="aoFocar"
               @input="codigoSala = codigoSala.toUpperCase()"
             />
-            <v-btn
-              block
-              color="primary"
-              :disabled="!podeSubmeter || !codigoSala"
-              :loading="entrando"
-              @click="entrarSala"
-            >
-              Entrar na sala
-            </v-btn>
+            <div class="d-flex justify-center">
+              <v-btn
+                color="primary"
+                rounded
+                class="btn-acao"
+                :disabled="!podeSubmeter || !codigoSala"
+                :loading="entrando"
+                @click="entrarSala"
+              >
+                Entrar na sala
+              </v-btn>
+            </div>
 
             <v-alert v-if="erro" type="error" dense class="mt-4">
               {{ erro }}
@@ -106,12 +131,12 @@ export default {
   data: () => ({
     nome: '',
     cor: '',
+    autoPlayStrategy: 'aleatoria',
     codigoSala: '',
     criando: false,
     entrando: false,
     erro: null,
     cores: ['red', 'blue', 'green', 'orange', 'purple', 'teal', 'pink', 'amber darken-2'],
-    mostrarTutorialLocal: false,
   }),
 
   computed: {
@@ -127,6 +152,9 @@ export default {
     cor () {
       this.salvarPerfil()
     },
+    autoPlayStrategy () {
+      this.salvarPerfil()
+    },
   },
 
   mounted () {
@@ -138,7 +166,11 @@ export default {
       this.erro = null
       this.criando = true
       try {
-        const roomCode = await this.$store.dispatch('criarSala', { nome: this.nome, cor: this.cor })
+        const roomCode = await this.$store.dispatch('criarSala', {
+          nome: this.nome,
+          cor: this.cor,
+          autoPlayStrategy: this.autoPlayStrategy,
+        })
         this.$router.push({ name: 'Room', params: { code: roomCode } })
       } catch (err) {
         this.erro = err.message
@@ -155,6 +187,7 @@ export default {
           roomCode: this.codigoSala.trim(),
           nome: this.nome,
           cor: this.cor,
+          autoPlayStrategy: this.autoPlayStrategy,
         })
         this.$router.push({ name: 'Room', params: { code: roomCode } })
       } catch (err) {
@@ -172,6 +205,7 @@ export default {
         if (perfil && typeof perfil === 'object') {
           if (perfil.nome) this.nome = perfil.nome
           if (perfil.cor) this.cor = perfil.cor
+          if (perfil.autoPlayStrategy) this.autoPlayStrategy = perfil.autoPlayStrategy
         }
       } catch (err) {
         // localStorage indisponível (modo privado etc.): segue sem pré-preenchimento.
@@ -180,7 +214,11 @@ export default {
 
     salvarPerfil () {
       try {
-        localStorage.setItem(CHAVE_PERFIL, JSON.stringify({ nome: this.nome, cor: this.cor }))
+        localStorage.setItem(CHAVE_PERFIL, JSON.stringify({
+          nome: this.nome,
+          cor: this.cor,
+          autoPlayStrategy: this.autoPlayStrategy,
+        }))
       } catch (err) {
         // localStorage indisponível: sem persistência, sem quebrar o app.
       }
@@ -194,8 +232,7 @@ export default {
     },
 
     abrirTutorial () {
-      // eslint-disable-next-line no-console
-      console.info('abrir tutorial')
+      this.$store.commit('SET_MOSTRAR_TUTORIAL', true)
     },
   },
 };
@@ -257,6 +294,21 @@ export default {
 .btn-tutorial {
   min-height: 44px;
   padding: 0 20px;
+}
+
+.btn-acao {
+  min-width: 180px;
+}
+
+.toggle-estrategia {
+  width: 100%;
+  flex-wrap: wrap;
+  height: auto !important;
+}
+
+.toggle-estrategia .v-btn {
+  flex: 1 1 auto;
+  min-height: 40px;
 }
 
 @media (max-width: 599px) {

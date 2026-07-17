@@ -10,8 +10,15 @@ function iniciarServidorDeTeste () {
     const httpServer = http.createServer()
     const io = new Server(httpServer)
     // delay bem curto nos testes: só precisa existir o passo intermediário,
-    // não precisa esperar os ~2.5s reais de produção
-    registerSocketHandlers(io, { tempoEsperaVazaMs: 20 })
+    // não precisa esperar os ~2.5s reais de produção. Os prazos de automação
+    // (timer de turno, auto-distribuir, rodada às cegas) ficam bem longos pra
+    // não disparar no meio das asserções, que exercitam as ações manuais.
+    registerSocketHandlers(io, {
+      tempoEsperaVazaMs: 20,
+      tempoLimiteTurnoMs: 10 * 60 * 1000,
+      tempoAutoDistribuirMs: 10 * 60 * 1000,
+      tempoEntreJogadasCegasMs: 10 * 60 * 1000,
+    })
     httpServer.listen(0, () => {
       resolve({ httpServer, io, port: httpServer.address().port })
     })

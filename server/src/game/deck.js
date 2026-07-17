@@ -1,7 +1,7 @@
 // Baralho de 52 cartas (baralho sujo: 13 ranks × 4 naipes) e regras de força/manilha.
 
 const RANKS = ['4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', '3']
-const SUITS = ['paus', 'copas', 'espadas', 'ouros'] // ordem de força crescente para manilha
+const SUITS = ['ouros', 'espadas', 'copas', 'paus'] // ordem de força crescente para manilha (paus/"zap" é a mais forte)
 
 function criarBaralho () {
   const baralho = []

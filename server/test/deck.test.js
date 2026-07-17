@@ -22,9 +22,9 @@ test('manilha vence qualquer carta comum', () => {
   assert.ok(r > 0)
 })
 
-test('entre manilhas, naipe decide (ouros > espadas > copas > paus)', () => {
+test('entre manilhas, naipe decide (paus > copas > espadas > ouros)', () => {
   const manilha = '5'
-  const r = compararCartas({ rank: '5', suit: 'ouros' }, { rank: '5', suit: 'paus' }, manilha)
+  const r = compararCartas({ rank: '5', suit: 'paus' }, { rank: '5', suit: 'ouros' }, manilha)
   assert.ok(r > 0)
 })
 

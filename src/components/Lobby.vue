@@ -57,17 +57,18 @@
               {{ gameState.jogadores.length }} jogador(es) na sala (mínimo 2 para começar)
             </p>
 
-            <v-btn
-              v-if="souDono"
-              block
-              color="success"
-              class="mt-4"
-              :disabled="gameState.jogadores.length < 2"
-              :loading="iniciando"
-              @click="iniciar"
-            >
-              Começar
-            </v-btn>
+            <div v-if="souDono" class="d-flex justify-center mt-4">
+              <v-btn
+                color="success"
+                rounded
+                class="btn-acao"
+                :disabled="gameState.jogadores.length < 2"
+                :loading="iniciando"
+                @click="iniciar"
+              >
+                Começar
+              </v-btn>
+            </div>
             <p v-else class="text-center mt-4">
               Aguardando {{ nomeDono }} começar a partida...
             </p>
@@ -195,5 +196,9 @@ export default {
 
 .avatar-vazio {
   border: 2px dashed rgba(0, 0, 0, .3) !important;
+}
+
+.btn-acao {
+  min-width: 180px;
 }
 </style>
