@@ -651,8 +651,23 @@ export default {
   .oponentes-linha {
     flex-wrap: nowrap;
     overflow-x: auto;
-    justify-content: flex-start;
-    padding: 0 4px;
+    /* "safe center": centraliza quando os assentos cabem inteiros na tela;
+       se não couberem, cai para o alinhamento normal (senão o `center` puro
+       esconde os primeiros assentos atrás da borda). Mesmo padrão do
+       .mao-scroll acima. */
+    justify-content: center;
+    justify-content: safe center;
+    /* overflow-x: auto sem overflow-y definido faz o navegador tratar
+       overflow-y como auto também (não "visible"), cortando a etiqueta
+       ("embaralha"/"vez", top: -10px) e o realce do assento da vez
+       (transform: scale) que ultrapassam o topo do card. */
+    padding: 14px 4px 4px;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .oponentes-linha::-webkit-scrollbar {
+    display: none;
   }
 
   .oponente-item {
