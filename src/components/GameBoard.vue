@@ -58,7 +58,7 @@
       </div>
     </transition>
 
-    <div class="oponentes-linha my-2">
+    <transition-group name="oponente-transicao" tag="div" class="oponentes-linha my-2">
       <div v-for="j in outrosJogadores" :key="j.seat" class="ma-1 oponente-item">
         <PlayerSeat
           :jogador="j"
@@ -69,7 +69,7 @@
           :compacto="outrosJogadores.length > 3"
         />
       </div>
-    </div>
+    </transition-group>
 
     <v-alert
       v-if="gameState.rodadaCega && (gameState.fase === 'palpite' || gameState.fase === 'jogando')"
@@ -205,7 +205,7 @@
           Ordenar cartas
         </v-btn>
       </div>
-      <div class="d-flex mao-container mao-scroll">
+      <transition-group name="carta-mao-transicao" tag="div" class="d-flex mao-container mao-scroll">
         <div
           v-for="carta in minhaMaoExibida"
           :key="cartaId(carta)"
@@ -222,7 +222,7 @@
             :rotacao="rotacaoParaCarta(carta)"
           />
         </div>
-      </div>
+      </transition-group>
     </template>
 
     <ResultadoRodadaDialog v-model="mostrarResultado" :resultado="gameState.ultimoResultado" />
@@ -735,6 +735,21 @@ export default {
   flex-wrap: wrap;
 }
 
+.oponente-item {
+  transition: transform .3s ease;
+}
+
+.oponente-transicao-enter-active,
+.oponente-transicao-leave-active {
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.oponente-transicao-enter,
+.oponente-transicao-leave-to {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
 @media (max-width: 599px) {
   .oponentes-linha {
     flex-wrap: nowrap;
@@ -768,6 +783,7 @@ export default {
 }
 
 .mao-scroll {
+  position: relative;
   overflow-x: auto;
   overflow-y: hidden;
   scroll-snap-type: x proximity;
@@ -797,6 +813,9 @@ export default {
 .carta-mao-item {
   flex: 0 0 auto;
   scroll-snap-align: center;
+  /* Anima tanto o reordenar por arraste/botão (FLIP do transition-group)
+     quanto o "pegar" a carta ao segurar pra arrastar. */
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1);
 }
 
 .carta-jogavel {
@@ -807,6 +826,28 @@ export default {
   z-index: 10;
   opacity: 0.85;
   transform: scale(1.08);
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+/* Carta jogada "voa" pra fora da mão; carta nova entra subindo de baixo
+   (distribuição). */
+.carta-mao-transicao-enter-active {
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.carta-mao-transicao-leave-active {
+  transition: opacity .2s ease, transform .2s ease;
+  position: absolute;
+}
+
+.carta-mao-transicao-enter {
+  opacity: 0;
+  transform: translateY(24px) scale(0.9);
+}
+
+.carta-mao-transicao-leave-to {
+  opacity: 0;
+  transform: translateY(-60px) scale(0.85);
 }
 
 .btn-ordenar {
@@ -835,14 +876,17 @@ export default {
   letter-spacing: 0.3px;
 }
 
-.banner-vencedor-transicao-enter-active,
+.banner-vencedor-transicao-enter-active {
+  transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
 .banner-vencedor-transicao-leave-active {
-  transition: opacity .25s ease, transform .25s ease;
+  transition: opacity .2s ease, transform .2s ease;
 }
 
 .banner-vencedor-transicao-enter,
 .banner-vencedor-transicao-leave-to {
   opacity: 0;
-  transform: scale(0.85);
+  transform: scale(0.8);
 }
 </style>

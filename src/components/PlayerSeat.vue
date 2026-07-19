@@ -37,17 +37,21 @@
       palpite {{ jogador.bid }}
     </v-chip>
 
-    <div v-if="cartaRevelada" class="carta-revelada-badge">
-      <Carta
-        :carta="cartaRevelada"
-        :manilha="cartaRevelada.rank === manilha"
-        small
-        class="carta-mini"
-      />
-    </div>
+    <transition name="badge-transicao">
+      <div v-if="cartaRevelada" class="carta-revelada-badge">
+        <Carta
+          :carta="cartaRevelada"
+          :manilha="cartaRevelada.rank === manilha"
+          small
+          class="carta-mini"
+        />
+      </div>
+    </transition>
 
-    <div v-if="dealer" class="etiqueta etiqueta-dealer">embaralha</div>
-    <div v-else-if="destacado" class="etiqueta etiqueta-vez">vez</div>
+    <transition name="etiqueta-transicao">
+      <div v-if="dealer" key="dealer" class="etiqueta etiqueta-dealer">embaralha</div>
+      <div v-else-if="destacado" key="vez" class="etiqueta etiqueta-vez">vez</div>
+    </transition>
   </v-card>
 </template>
 
@@ -81,7 +85,7 @@ export default {
 .assento {
   border: 3px solid transparent;
   position: relative;
-  transition: all .2s ease-in-out;
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), border-color .25s ease, margin-bottom .25s ease;
   min-width: 110px;
 }
 
@@ -158,5 +162,27 @@ export default {
   border-radius: 8px;
   outline: 2px solid #212121;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
+}
+
+.etiqueta-transicao-enter-active,
+.etiqueta-transicao-leave-active {
+  transition: opacity .2s ease, transform .2s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.etiqueta-transicao-enter,
+.etiqueta-transicao-leave-to {
+  opacity: 0;
+  transform: scale(0.4);
+}
+
+.badge-transicao-enter-active,
+.badge-transicao-leave-active {
+  transition: opacity .25s ease, transform .25s ease;
+}
+
+.badge-transicao-enter,
+.badge-transicao-leave-to {
+  opacity: 0;
+  transform: translateX(-50%) translateY(10px) scale(0.7);
 }
 </style>

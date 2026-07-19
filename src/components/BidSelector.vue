@@ -1,10 +1,11 @@
 <template>
   <div class="text-center">
     <p class="white--text font-weight-bold mb-2">Quantas você vai fazer?</p>
-    <div class="d-flex flex-wrap justify-center opcoes-palpite">
+    <transition-group name="palpite-btn-transicao" tag="div" class="d-flex flex-wrap justify-center opcoes-palpite">
       <v-btn
-        v-for="valor in opcoes"
+        v-for="(valor, index) in opcoes"
         :key="valor"
+        :style="{ transitionDelay: (index * 40) + 'ms' }"
         class="ma-1"
         fab
         :disabled="enviando !== null || valor === palpiteProibido"
@@ -14,7 +15,7 @@
       >
         {{ valor }}
       </v-btn>
-    </div>
+    </transition-group>
     <p v-if="palpiteProibido !== null" class="caption white--text mt-1 aviso-proibido">
       Você não pode palpitar {{ palpiteProibido }} (fecharia a conta certinha)
     </p>
@@ -90,5 +91,18 @@ export default {
 
 .aviso-proibido {
   opacity: 0.85;
+}
+
+.palpite-btn-transicao-enter-active {
+  transition: opacity .3s ease, transform .3s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.palpite-btn-transicao-enter {
+  opacity: 0;
+  transform: scale(0.4) translateY(10px);
+}
+
+.palpite-btn-transicao-move {
+  transition: transform .3s ease;
 }
 </style>

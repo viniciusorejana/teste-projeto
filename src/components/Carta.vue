@@ -66,7 +66,7 @@ export default {
 
 <style type="text/css" scoped>
 .cartaClass {
-  transition: all .2s ease-in-out;
+  transition: transform .2s cubic-bezier(.34, 1.56, .64, 1), box-shadow .2s ease;
   width: clamp(56px, 16vw, 80px);
   min-height: 100px;
   position: relative;
@@ -94,6 +94,7 @@ export default {
 
 .cartaClass:active {
   transform: scale(0.96);
+  transition-duration: .08s;
 }
 
 .naipe {

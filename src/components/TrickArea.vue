@@ -3,20 +3,22 @@
     <div v-if="mesaAtual.length === 0" class="white--text caption mesa-vazia">
       Aguardando jogadas...
     </div>
-    <div v-for="jogada in mesaAtual" :key="jogada.seat" class="text-center mx-2 mb-2">
-      <div :class="{ 'carta-anulada': anuladas.has(jogada.seat), 'carta-ganhando': jogada.seat === seatGanhando }">
-        <Carta :carta="jogada.carta" :manilha="jogada.carta.rank === manilha" />
+    <transition-group name="carta-mesa-transicao" tag="div" class="mesa-grupo">
+      <div v-for="jogada in mesaAtual" :key="jogada.seat" class="text-center mx-2 mb-2">
+        <div :class="['carta-mesa-estado', { 'carta-anulada': anuladas.has(jogada.seat), 'carta-ganhando': jogada.seat === seatGanhando }]">
+          <Carta :carta="jogada.carta" :manilha="jogada.carta.rank === manilha" />
+        </div>
+        <p class="white--text caption mt-1 mb-0">
+          {{ nomeDoAssento(jogada.seat) }}
+          <span v-if="anuladas.has(jogada.seat)" class="anulada-label">
+            <v-icon x-small color="#fff59d">mdi-cancel</v-icon> anulada
+          </span>
+          <span v-else-if="jogada.seat === seatGanhando" class="ganhando-label">
+            <v-icon x-small color="#ffd600">mdi-trophy</v-icon> ganhando
+          </span>
+        </p>
       </div>
-      <p class="white--text caption mt-1 mb-0">
-        {{ nomeDoAssento(jogada.seat) }}
-        <span v-if="anuladas.has(jogada.seat)" class="anulada-label">
-          <v-icon x-small color="#fff59d">mdi-cancel</v-icon> anulada
-        </span>
-        <span v-else-if="jogada.seat === seatGanhando" class="ganhando-label">
-          <v-icon x-small color="#ffd600">mdi-trophy</v-icon> ganhando
-        </span>
-      </p>
-    </div>
+    </transition-group>
   </div>
 </template>
 
@@ -107,10 +109,23 @@ export default {
 .mesa {
   min-height: 130px;
   align-items: center;
+  position: relative;
 }
 
 .mesa-vazia {
   opacity: 0.7;
+}
+
+/* display:contents faz o wrapper do transition-group "sumir" do layout: os
+   itens dentro dele viram filhos diretos do flex .mesa, como se o
+   transition-group nem existisse — só assim dá pra animar entrada/saída das
+   cartas sem quebrar a centralização/wrap da mesa. */
+.mesa-grupo {
+  display: contents;
+}
+
+.carta-mesa-estado {
+  transition: opacity .3s ease, filter .3s ease, box-shadow .3s ease;
 }
 
 .carta-anulada {
@@ -122,6 +137,32 @@ export default {
   outline: 3px solid #ffd600;
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(255, 214, 0, 0.7);
+}
+
+/* Carta "pousando" na mesa: sobe e cresce até o tamanho final, como se
+   tivesse acabado de ser jogada da mão. Ao sair (vaza resolvida), encolhe e
+   desaparece no lugar. */
+.carta-mesa-transicao-enter-active {
+  transition: opacity .3s ease, transform .35s cubic-bezier(.34, 1.56, .64, 1);
+}
+
+.carta-mesa-transicao-leave-active {
+  transition: opacity .25s ease, transform .25s ease;
+  position: absolute;
+}
+
+.carta-mesa-transicao-enter {
+  opacity: 0;
+  transform: translateY(36px) scale(0.7);
+}
+
+.carta-mesa-transicao-leave-to {
+  opacity: 0;
+  transform: scale(0.75);
+}
+
+.carta-mesa-transicao-move {
+  transition: transform .3s ease;
 }
 
 .anulada-label,
