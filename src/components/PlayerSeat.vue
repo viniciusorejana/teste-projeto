@@ -1,6 +1,6 @@
 <template>
   <v-card
-    :class="['pa-2', 'text-center', 'assento', { 'assento-dealer': dealer, 'assento-vez': destacado, 'assento-compacto': compacto }]"
+    :class="['pa-2', 'text-center', 'assento', { 'assento-dealer': dealer, 'assento-vez': destacado, 'assento-compacto': compacto, 'assento-com-carta': cartaRevelada }]"
     elevation="4"
   >
     <v-avatar :color="jogador.color" :size="compacto ? 32 : 40">
@@ -28,15 +28,16 @@
       ✓ {{ jogador.made }} mão(s) na rodada
     </p>
 
-    <v-chip v-if="jogador.eliminated" x-small color="grey" text-color="white">eliminado</v-chip>
-    <template v-else>
-      <v-chip v-if="jogador.bid !== null && jogador.bid !== undefined" x-small class="mr-1">
-        palpite {{ jogador.bid }}
-      </v-chip>
-      <v-chip x-small color="grey lighten-3">{{ jogador.handCount }} carta(s)</v-chip>
-    </template>
+    <v-chip v-if="jogador.eliminated" small color="grey" text-color="white">eliminado</v-chip>
+    <v-chip
+      v-else-if="jogador.bid !== null && jogador.bid !== undefined"
+      small
+      class="chip-palpite"
+    >
+      palpite {{ jogador.bid }}
+    </v-chip>
 
-    <div v-if="cartaRevelada" class="mt-2 d-flex justify-center">
+    <div v-if="cartaRevelada" class="carta-revelada-badge">
       <Carta
         :carta="cartaRevelada"
         :manilha="cartaRevelada.rank === manilha"
@@ -85,13 +86,24 @@ export default {
 }
 
 .assento-compacto {
-  min-width: 84px;
+  min-width: 92px;
   padding: 4px !important;
 }
 
+/* Reserva espaço embaixo pro badge da carta revelada (rodada às cegas), que
+   sai da borda inferior do card, pra ele não ser cortado pelo overflow da
+   linha de oponentes. */
+.assento-com-carta {
+  margin-bottom: 30px;
+}
+
 .nome-jogador {
-  font-size: 0.8rem;
+  font-size: 0.9rem;
   line-height: 1.1;
+}
+
+.chip-palpite {
+  font-weight: 600;
 }
 
 .assento-dealer {
@@ -115,9 +127,9 @@ export default {
   position: absolute;
   top: -10px;
   right: -10px;
-  font-size: 10px;
-  padding: 1px 6px;
-  border-radius: 8px;
+  font-size: 12px;
+  padding: 2px 9px;
+  border-radius: 9px;
   color: white;
   font-weight: bold;
 }
@@ -130,8 +142,21 @@ export default {
   background: #f9a825;
 }
 
+/* Carta revelada nas rodadas às cegas: ancorada como um badge saindo da borda
+   inferior do assento, com anel/sombra escura pra destacar do fundo branco do
+   card (antes ficava branco-sobre-branco e ilegível). */
+.carta-revelada-badge {
+  position: absolute;
+  bottom: -18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 3;
+}
+
 .carta-mini {
-  transform: scale(0.6);
-  margin: -20px;
+  transform: scale(0.82);
+  border-radius: 8px;
+  outline: 2px solid #212121;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.6) !important;
 }
 </style>

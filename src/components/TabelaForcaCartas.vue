@@ -30,21 +30,21 @@
 
           <!-- Leque de cartas: força na horizontal, sem deslizar -->
           <div class="forca-leque__legenda d-flex justify-space-between text-caption grey--text text--darken-1 mb-1 px-1">
-            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais forte</span>
-            <span>mais fraca <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
+            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais fraca</span>
+            <span>mais forte <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
           </div>
           <div class="forca-leque">
             <div
               v-for="(rank, index) in ranksOrdenados"
               :key="rank"
-              :class="['forca-leque__carta', corDoNaipeDecorativo(index), { 'forca-leque__carta--manilha': rank === manilha }]"
-              :style="{ zIndex: ranksOrdenados.length - index }"
+              :class="['forca-leque__carta', corDoNaipeDecorativo, { 'forca-leque__carta--manilha': rank === manilha }]"
+              :style="{ zIndex: index + 1 }"
             >
               <v-icon v-if="rank === manilha" x-small color="amber darken-4" class="forca-leque__coroa">
                 mdi-crown
               </v-icon>
               <span class="forca-leque__rank">{{ rank }}</span>
-              <span class="forca-leque__naipe">{{ simboloDecorativo(index) }}</span>
+              <span class="forca-leque__naipe">{{ simboloDecorativo }}</span>
             </div>
           </div>
 
@@ -83,6 +83,7 @@
       v-else
       v-model="mostrar"
       max-width="480"
+      class="tabela-forca-cartas__dialog"
     >
       <v-card>
         <v-card-title class="d-flex align-center">
@@ -107,21 +108,21 @@
 
           <!-- Leque de cartas: força na horizontal, sem deslizar -->
           <div class="forca-leque__legenda d-flex justify-space-between text-caption grey--text text--darken-1 mb-1 px-1">
-            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais forte</span>
-            <span>mais fraca <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
+            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais fraca</span>
+            <span>mais forte <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
           </div>
           <div class="forca-leque">
             <div
               v-for="(rank, index) in ranksOrdenados"
               :key="rank"
-              :class="['forca-leque__carta', corDoNaipeDecorativo(index), { 'forca-leque__carta--manilha': rank === manilha }]"
-              :style="{ zIndex: ranksOrdenados.length - index }"
+              :class="['forca-leque__carta', corDoNaipeDecorativo, { 'forca-leque__carta--manilha': rank === manilha }]"
+              :style="{ zIndex: index + 1 }"
             >
               <v-icon v-if="rank === manilha" x-small color="amber darken-4" class="forca-leque__coroa">
                 mdi-crown
               </v-icon>
               <span class="forca-leque__rank">{{ rank }}</span>
-              <span class="forca-leque__naipe">{{ simboloDecorativo(index) }}</span>
+              <span class="forca-leque__naipe">{{ simboloDecorativo }}</span>
             </div>
           </div>
 
@@ -168,6 +169,11 @@ const SIMBOLOS = {
   paus: '♣',
 }
 
+// Naipe único usado em todas as cartas do leque: aqui o naipe não tem
+// significado (só a força do rank importa, exceto no desempate de manilhas
+// logo abaixo), então misturar naipes só criava ruído visual.
+const NAIPE_DECORATIVO = 'espadas'
+
 export default {
   name: 'TabelaForcaCartas',
 
@@ -203,14 +209,22 @@ export default {
       },
     },
 
-    // Ranks ordenados da mais forte para a mais fraca, com a manilha
-    // sempre no topo (independente da posição que ocupa em `RANKS`).
+    // Ranks ordenados da mais fraca para a mais forte, com a manilha
+    // sempre por último (independente da posição que ocupa em `RANKS`).
     ranksOrdenados () {
-      const decrescente = [...this.ranks].reverse()
+      const crescente = [...this.ranks]
       if (!this.manilha) {
-        return decrescente
+        return crescente
       }
-      return [this.manilha, ...decrescente.filter((rank) => rank !== this.manilha)]
+      return [...crescente.filter((rank) => rank !== this.manilha), this.manilha]
+    },
+
+    simboloDecorativo () {
+      return SIMBOLOS[NAIPE_DECORATIVO] || ''
+    },
+
+    corDoNaipeDecorativo () {
+      return NAIPE_DECORATIVO === 'ouros' || NAIPE_DECORATIVO === 'copas' ? 'forca-leque__carta--vermelha' : 'forca-leque__carta--preta'
     },
   },
 
@@ -224,19 +238,6 @@ export default {
     simboloDoNaipe (suit) {
       return SIMBOLOS[suit] || ''
     },
-    // O leque só ilustra a força do RANK (naipe não importa aqui, exceto
-    // pra desempate entre manilhas, já coberto abaixo) — os naipes variam só
-    // pra parecer um baralho de verdade, não têm significado nessa lista.
-    naipeDecorativo (index) {
-      return this.suits[index % this.suits.length]
-    },
-    simboloDecorativo (index) {
-      return SIMBOLOS[this.naipeDecorativo(index)] || ''
-    },
-    corDoNaipeDecorativo (index) {
-      const suit = this.naipeDecorativo(index)
-      return suit === 'ouros' || suit === 'copas' ? 'forca-leque__carta--vermelha' : 'forca-leque__carta--preta'
-    },
   },
 }
 </script>
@@ -245,6 +246,14 @@ export default {
 .tabela-forca-cartas__sheet {
   max-height: 85vh;
   overflow-y: auto;
+}
+
+/* O Vuetify força `width: 100%` em todo `.v-dialog` (pensado pra caber até o
+   `max-width`); aqui o conteúdo (leque de cartas) é bem mais estreito que os
+   480px do `max-width`, então sem isso o diálogo sempre abre mais largo do
+   que precisa. `max-width` continua valendo como teto. */
+.tabela-forca-cartas__dialog {
+  width: auto !important;
 }
 
 .forca-leque {
@@ -278,9 +287,13 @@ export default {
   color: #212121;
 }
 
+/* Ancorado à esquerda (não à direita): como as cartas mais à direita ficam
+   por cima no leque (empilhamento natural, reforçado pelo z-index abaixo), o
+   lado direito de cada carta comum fica coberto pela carta seguinte — só a
+   faixa esquerda (antes do overlap de -22px começar) fica sempre visível. */
 .forca-leque__rank {
   position: absolute;
-  right: 5px;
+  left: 5px;
   top: 3px;
   font-weight: 800;
   font-size: .8rem;
@@ -289,7 +302,7 @@ export default {
 
 .forca-leque__naipe {
   position: absolute;
-  right: 5px;
+  left: 5px;
   top: 18px;
   font-size: .75rem;
   line-height: 1;
@@ -298,7 +311,10 @@ export default {
 .forca-leque__carta--manilha {
   width: 58px;
   height: 82px;
-  margin-right: 10px;
+  /* Agora é a última carta do leque (mais forte, à direita): precisa de uma
+     folga positiva à esquerda em vez do overlap padrão (-22px) das outras
+     cartas, senão ela fica espremida contra a carta anterior. */
+  margin-left: 14px;
   transform: translateY(-12px);
   background-color: #fff8e1;
   border: 2px solid #ffd600;

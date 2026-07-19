@@ -21,7 +21,7 @@
           <v-card-text>
             <v-list dense>
               <v-list-item v-for="j in gameState.jogadores" :key="j.seat">
-                <v-list-item-avatar :color="j.color" size="32">
+                <v-list-item-avatar :color="j.color" size="32" class="avatar-jogador">
                   <span class="white--text font-weight-bold">{{ j.name.charAt(0).toUpperCase() }}</span>
                 </v-list-item-avatar>
                 <v-list-item-content>
@@ -188,6 +188,14 @@ export default {
   letter-spacing: .3rem;
   line-height: 1.1;
   margin-bottom: 0;
+}
+
+/* O Vuetify aplica `justify-content: flex-start` em `.v-list-item__avatar`
+   (mesmo elemento raiz do `v-avatar` aqui dentro), sobrepondo o
+   `justify-content: center` padrão do avatar e jogando a letra pra esquerda
+   do círculo em vez de centralizada. */
+.avatar-jogador {
+  justify-content: center !important;
 }
 
 .slot-vazio {

@@ -1,25 +1,44 @@
 <template>
   <v-container fluid class="fill-height board pa-2 d-flex flex-column">
-    <div class="text-center white--text barra-superior">
-      <div class="text-h6 font-weight-bold rodada-titulo">Rodada {{ gameState.rodadaNumero }}</div>
-      <div v-if="gameState.tamanhoMao" class="caption white--text text--lighten-2 rodada-subtitulo">
-        {{ gameState.tamanhoMao }} carta(s) na mão
+    <div class="barra-superior d-flex align-center px-2">
+      <div class="barra-superior-lado d-flex justify-start">
+        <v-btn
+          v-if="$vuetify.breakpoint.xsOnly"
+          icon
+          color="white"
+          class="btn-tutorial"
+          aria-label="Como jogar"
+          @click="mostrarTutorialLocal = true"
+        >
+          <v-icon>mdi-help-circle-outline</v-icon>
+        </v-btn>
+        <v-btn
+          v-else
+          text
+          small
+          color="white"
+          class="btn-tutorial"
+          aria-label="Como jogar"
+          @click="mostrarTutorialLocal = true"
+        >
+          <v-icon left small>mdi-help-circle-outline</v-icon>
+          Como jogar?
+        </v-btn>
       </div>
+
+      <div class="text-center white--text barra-superior-titulo">
+        <div class="text-h6 font-weight-bold rodada-titulo">Rodada {{ gameState.rodadaNumero }}</div>
+        <div v-if="gameState.tamanhoMao" class="caption white--text text--lighten-2 rodada-subtitulo">
+          {{ gameState.tamanhoMao }} carta(s) na mão
+        </div>
+      </div>
+
+      <!-- Espelha a largura do botão à esquerda pra manter o título centralizado. -->
+      <div class="barra-superior-lado" aria-hidden="true"></div>
     </div>
 
-    <div class="d-flex justify-start px-2">
-      <v-btn
-        text
-        small
-        color="white"
-        class="btn-tutorial"
-        aria-label="Como jogar"
-        @click="mostrarTutorialLocal = true"
-      >
-        <v-icon left small>mdi-help-circle-outline</v-icon>
-        Como jogar?
-      </v-btn>
-    </div>
+    <GameToast ref="toast" :suprimir="mostrarResultado || fimDeJogo" />
+    <GameToast ref="toastCanto" posicao="canto" :suprimir="mostrarResultado || fimDeJogo" />
 
     <TabelaForcaCartas
       v-model="mostrarTabelaForca"
@@ -79,7 +98,7 @@
           <span v-if="gameState.manilha">Manilha: {{ gameState.manilha }}</span>
           <span v-else>Força das cartas</span>
         </v-chip>
-        <p class="white--text caption mb-0 mt-1 dica-forca">
+        <p class="white--text caption mb-0 mt-1 dica-forca d-none d-sm-block">
           toque para ver a força das cartas
         </p>
       </div>
@@ -168,7 +187,9 @@
           rounded
           :color="corContadorTurno"
         />
-        <span class="caption white--text">{{ segundosRestantes }}s para a jogada automática</span>
+        <span class="caption white--text">
+          {{ segundosRestantes }}s<span class="d-none d-sm-inline"> para a jogada automática</span>
+        </span>
       </div>
     </div>
 
@@ -230,6 +251,7 @@ import TutorialDialog from './TutorialDialog.vue'
 import PlayerSeat from './PlayerSeat.vue'
 import BidSelector from './BidSelector.vue'
 import TrickArea from './TrickArea.vue'
+import GameToast from './GameToast.vue'
 import { RANKS, SUITS } from '../constants/cartas'
 
 // Espelha handlers.js (TEMPO_LIMITE_TURNO_MS_PADRAO): só usado pra desenhar a
@@ -246,7 +268,7 @@ const ATRASO_ARRASTO_MS = 200
 export default {
   name: 'GameBoard',
 
-  components: { Carta, PlayerSeat, BidSelector, TrickArea, TabelaForcaCartas, ResultadoRodadaDialog, FimDeJogoDialog, TutorialDialog },
+  components: { Carta, PlayerSeat, BidSelector, TrickArea, GameToast, TabelaForcaCartas, ResultadoRodadaDialog, FimDeJogoDialog, TutorialDialog },
 
   data: () => ({
     reiniciando: false,
@@ -370,7 +392,7 @@ export default {
   },
 
   watch: {
-    'gameState.fase' (novaFase) {
+    'gameState.fase' (novaFase, faseAntiga) {
       if (novaFase === 'aguardando_distribuir' && this.gameState.ultimoResultado) {
         // A distribuição da próxima rodada é automática agora (poucos
         // segundos depois); se o tutorial ou a tabela de força estiverem
@@ -386,6 +408,46 @@ export default {
         // jogador fechar o resultado da rodada anterior: fecha sozinho pra
         // não deixar o diálogo antigo bloqueando a rodada nova por baixo.
         this.mostrarResultado = false
+      }
+
+      // Único anúncio de fase (os toasts de vez/palpite já cobrem o resto):
+      // a virada de "todos palpitaram" pra "hora de jogar" é o marco que
+      // vale destacar. Ignora a primeira renderização (faseAntiga undefined).
+      if (novaFase === 'jogando' && faseAntiga === 'palpite') {
+        this.anunciarToast({ texto: 'Todos palpitaram — hora de jogar!', icone: 'mdi-cards-playing' })
+      }
+    },
+
+    // Anuncia de quem é a vez sempre que o turno muda pra um assento válido.
+    'gameState.turnoSeat' (novoSeat, seatAntigo) {
+      if (novoSeat === null || novoSeat === undefined || novoSeat === seatAntigo) return
+      // Mão de 1 carta: o servidor joga a rodada inteira sozinho, trocando de
+      // jogador a cada ~700ms sem esperar nenhuma decisão real (ver
+      // agendarAutomacoes em handlers.js) — anunciar cada troca só entope a
+      // fila de toasts com avisos que já estão desatualizados quando aparecem.
+      if (this.gameState.rodadaCega && this.gameState.fase === 'jogando') return
+      if (novoSeat === this.gameState.meuAssento) {
+        this.anunciarToast({ texto: 'Sua vez!', icone: 'mdi-account-star', cor: 'amber' })
+      } else {
+        this.anunciarToast({ texto: `Vez de ${this.nomeDoSeat(novoSeat)}`, icone: 'mdi-account-arrow-right' })
+      }
+    },
+
+    // Anuncia palpites: dispara pra cada jogador cujo bid saiu de vazio
+    // (null/undefined) pra um número desde a atualização anterior. O servidor
+    // manda o estado completo a cada evento, então basta comparar array novo
+    // vs. antigo (na primeira renderização, jogadoresAntigos vem undefined).
+    'gameState.jogadores' (jogadoresNovos, jogadoresAntigos) {
+      if (!jogadoresAntigos) return
+      for (const jogador of jogadoresNovos) {
+        const antigo = jogadoresAntigos.find((j) => j.seat === jogador.seat)
+        const bidAntigo = antigo ? antigo.bid : null
+        const bidVazio = bidAntigo === null || bidAntigo === undefined
+        const bidNovoValido = jogador.bid !== null && jogador.bid !== undefined
+        if (bidVazio && bidNovoValido) {
+          const nome = jogador.seat === this.gameState.meuAssento ? 'Você' : jogador.name
+          this.anunciarToast({ texto: `${nome} palpitou ${jogador.bid}`, icone: 'mdi-hand-back-right' }, 'canto')
+        }
       }
     },
 
@@ -421,6 +483,20 @@ export default {
   methods: {
     cartaId (carta) {
       return `${carta.rank}-${carta.suit}`
+    },
+
+    nomeDoSeat (seat) {
+      const j = this.gameState.jogadores.find((p) => p.seat === seat)
+      return j ? j.name : ''
+    },
+
+    // Encaminha pro GameToast certo ('centro', padrão, pra avisos importantes
+    // como vez/fim do palpite; 'canto' pra avisos discretos como palpite de
+    // alguém). Pode ainda não estar montado em algum caso de corrida durante
+    // a montagem inicial.
+    anunciarToast (aviso, destino = 'centro') {
+      const ref = destino === 'canto' ? this.$refs.toastCanto : this.$refs.toast
+      if (ref) ref.anunciar(aviso)
     },
 
     compararForca (a, b) {
@@ -604,6 +680,18 @@ export default {
 
 .barra-superior {
   line-height: 1.2;
+}
+
+/* Os dois "lados" têm a mesma largura flexível, então o título fica de fato
+   centralizado independentemente da largura do botão (ícone no mobile, ícone
+   + texto em telas maiores). */
+.barra-superior-lado {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.barra-superior-titulo {
+  flex: 0 1 auto;
 }
 
 .rodada-titulo {
