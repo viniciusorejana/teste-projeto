@@ -1,11 +1,41 @@
 # Fodinha
 
-Jogo de cartas multiplayer (2 a 8 jogadores). Front-end em Vue 2 +
-Vuetify, back-end em Node/Express/Socket.io que mantém o estado
-autoritativo da partida (cada jogador só recebe a própria mão).
+Jogo de cartas multiplayer (2 a 6 jogadores), jogável no navegador e instalável
+como PWA no celular. Front-end em Vue 2 + Vuetify, back-end em
+Node/Express/Socket.io que mantém o estado autoritativo da partida — cada
+jogador só recebe a própria mão (ou a dos outros, na rodada às cegas), nunca
+os dados de ninguém além do que pode ver.
 
-- `server/` — motor do jogo (`server/src/game`) e servidor Socket.io.
-- `src/` — front-end (telas de início, lobby e tabuleiro).
+## Funcionalidades
+
+- Salas com código de 5 caracteres, lobby com lista de jogadores em tempo
+  real e reconexão automática após queda de conexão ou F5 (token de sessão
+  persistido no navegador).
+- Motor de jogo completo: palpite com a regra do "fecha a conta", força das
+  cartas com manilha e desempate por naipe, anulação de cartas de mesmo rank,
+  vidas e eliminação, rodada às cegas (mão de 1 carta).
+- Jogada automática por tempo: se ninguém agir em 45s, o servidor decide por
+  quem está na vez (palpite aleatório válido; carta pela preferência
+  maior/menor/aleatória escolhida por cada jogador).
+- Tutorial interativo, tabela de força das cartas e toasts de aviso (vez,
+  palpites) direto no tabuleiro.
+- Layout responsivo com atenção especial ao mobile (reordenar a mão
+  arrastando, tabuleiro compacto, PWA instalável).
+
+## Estrutura
+
+- `server/` — motor do jogo (`server/src/game`), servidor Socket.io
+  (`server/src/socket/handlers.js`) e testes (`server/test`).
+- `src/` — front-end:
+  - `views/` — telas roteadas (`Home`, `Room`, que decide entre lobby e
+    tabuleiro conforme a fase da partida).
+  - `components/` — lobby, tabuleiro, assento de jogador, carta, seletor de
+    palpite, área da vaza, diálogos de resultado/fim de jogo/tutorial, tabela
+    de força e toasts.
+  - `store/` — estado global (Vuex), fonte única de verdade recebida do
+    servidor via Socket.io.
+  - `services/` — cliente Socket.io (`socket.js`) e persistência de sessão
+    no `localStorage` (`sessao.js`).
 
 ## Project setup
 ```

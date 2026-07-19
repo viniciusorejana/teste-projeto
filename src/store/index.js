@@ -10,10 +10,7 @@ const store = new Vuex.Store({
     conectado: false,
     roomCode: null,
     meuId: null, // token estável da sessão (não é o socket.id)
-    meuNome: '',
-    minhaCor: '',
     gameState: null,
-    erro: null,
     mostrarTutorial: false,
   },
 
@@ -21,10 +18,6 @@ const store = new Vuex.Store({
     meuJogador (state) {
       if (!state.gameState) return null
       return state.gameState.jogadores.find((j) => j.seat === state.gameState.meuAssento) || null
-    },
-    souDealer (state) {
-      if (!state.gameState) return false
-      return state.gameState.dealerSeat === state.gameState.meuAssento
     },
     ehMinhaVez (state) {
       if (!state.gameState) return false
@@ -49,13 +42,6 @@ const store = new Vuex.Store({
     SET_MEU_ID (state, id) {
       state.meuId = id
     },
-    SET_PERFIL (state, { nome, cor }) {
-      state.meuNome = nome
-      state.minhaCor = cor
-    },
-    SET_ERRO (state, erro) {
-      state.erro = erro
-    },
     SET_MOSTRAR_TUTORIAL (state, valor) {
       state.mostrarTutorial = valor
     },
@@ -63,7 +49,6 @@ const store = new Vuex.Store({
       state.roomCode = null
       state.meuId = null
       state.gameState = null
-      state.erro = null
     },
   },
 
@@ -75,7 +60,6 @@ const store = new Vuex.Store({
     async criarSala ({ commit, dispatch }, { nome, cor, autoPlayStrategy }) {
       dispatch('conectar')
       if (!socket.connected) await new Promise((resolve) => socket.once('connect', resolve))
-      commit('SET_PERFIL', { nome, cor })
       const resp = await emitir('room:create', { name: nome, color: cor, autoPlayStrategy })
       commit('SET_MEU_ID', resp.playerToken)
       commit('SET_ROOM_CODE', resp.roomCode)
@@ -86,7 +70,6 @@ const store = new Vuex.Store({
     async entrarSala ({ commit, dispatch }, { roomCode, nome, cor, autoPlayStrategy }) {
       dispatch('conectar')
       if (!socket.connected) await new Promise((resolve) => socket.once('connect', resolve))
-      commit('SET_PERFIL', { nome, cor })
       const resp = await emitir('room:join', { roomCode, name: nome, color: cor, autoPlayStrategy })
       commit('SET_MEU_ID', resp.playerToken)
       commit('SET_ROOM_CODE', resp.roomCode)
@@ -98,7 +81,6 @@ const store = new Vuex.Store({
     // A reconexão de fato acontece quando o socket conectar (ver listener
     // 'connect' abaixo), que já vai encontrar roomCode/meuId preenchidos.
     retomarSessao ({ commit, dispatch }, sessao) {
-      commit('SET_PERFIL', { nome: sessao.nome, cor: sessao.cor })
       commit('SET_ROOM_CODE', sessao.roomCode)
       commit('SET_MEU_ID', sessao.playerToken)
       dispatch('conectar')
@@ -112,10 +94,6 @@ const store = new Vuex.Store({
 
     iniciarPartida () {
       return emitir('game:start')
-    },
-
-    distribuirCartas () {
-      return emitir('round:deal')
     },
 
     enviarPalpite (context, valor) {

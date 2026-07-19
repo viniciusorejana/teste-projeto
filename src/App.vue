@@ -58,7 +58,7 @@ export default {
       this.$store.commit('SET_MOSTRAR_TUTORIAL', true)
     },
   },
-};
+}
 </script>
 
 <style scoped>

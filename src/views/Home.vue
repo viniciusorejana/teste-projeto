@@ -110,7 +110,6 @@
           </v-card-text>
         </v-card>
 
-        <!-- TODO(integração): trocar por TutorialDialog global quando disponível -->
         <div class="text-center mt-4 mb-2">
           <v-btn text color="white" class="btn-tutorial" @click="abrirTutorial">
             <v-icon left>mdi-help-circle-outline</v-icon>
@@ -235,7 +234,7 @@ export default {
       this.$store.commit('SET_MOSTRAR_TUTORIAL', true)
     },
   },
-};
+}
 </script>
 
 <style scoped>
