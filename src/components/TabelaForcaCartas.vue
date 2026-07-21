@@ -8,7 +8,7 @@
       <v-sheet class="pa-4 tabela-forca-cartas__sheet">
         <div class="d-flex align-center mb-2">
           <h3 class="text-subtitle-1 font-weight-bold mb-0">
-            Força das cartas
+            {{ $t('forca.titulo') }}
           </h3>
           <v-spacer />
           <v-btn icon small @click="fechar">
@@ -22,16 +22,16 @@
             <v-icon left color="black">
               mdi-crown
             </v-icon>
-            <span class="font-weight-bold">{{ manilha }} é a manilha desta rodada</span>
+            <span class="font-weight-bold">{{ $t('forca.manilhaDaRodada', { rank: manilha }) }}</span>
           </v-chip>
           <div v-else class="text-caption grey--text mb-3">
-            Manilha ainda não definida (aguardando o vira).
+            {{ $t('forca.manilhaIndefinida') }}
           </div>
 
           <!-- Leque de cartas: força na horizontal, sem deslizar -->
           <div class="forca-leque__legenda d-flex justify-space-between text-caption grey--text text--darken-1 mb-1 px-1">
-            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais fraca</span>
-            <span>mais forte <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
+            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> {{ $t('forca.maisFraca') }}</span>
+            <span>{{ $t('forca.maisForte') }} <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
           </div>
           <div class="forca-leque">
             <div
@@ -51,7 +51,7 @@
           <!-- Desempate entre manilhas -->
           <div v-if="manilha" class="forca-desempate">
             <div class="text-subtitle-2 font-weight-bold mb-2">
-              Desempate entre manilhas
+              {{ $t('forca.desempate') }}
             </div>
             <div class="d-flex align-center flex-wrap">
               <template v-for="(suit, index) in suits">
@@ -65,15 +65,15 @@
               </template>
             </div>
             <div class="text-caption grey--text text--darken-1 mt-2">
-              Quanto mais à direita, mais forte no empate de manilhas.
+              {{ $t('forca.desempateDica') }}
             </div>
           </div>
           <div v-else class="forca-desempate forca-desempate--vazio text-caption grey--text">
-            Aguardando o vira para saber o desempate entre manilhas.
+            {{ $t('forca.desempateVazio') }}
           </div>
 
           <div class="text-caption grey--text text--darken-1 mt-4">
-            Cartas comuns de mesmo valor se anulam em pares.
+            {{ $t('forca.anulamEmPares') }}
           </div>
         </div>
       </v-sheet>
@@ -87,7 +87,7 @@
     >
       <v-card>
         <v-card-title class="d-flex align-center">
-          <span class="text-h6">Força das cartas</span>
+          <span class="text-h6">{{ $t('forca.titulo') }}</span>
           <v-spacer />
           <v-btn icon @click="fechar">
             <v-icon>mdi-close</v-icon>
@@ -100,16 +100,16 @@
             <v-icon left color="black">
               mdi-crown
             </v-icon>
-            <span class="font-weight-bold">{{ manilha }} é a manilha desta rodada</span>
+            <span class="font-weight-bold">{{ $t('forca.manilhaDaRodada', { rank: manilha }) }}</span>
           </v-chip>
           <div v-else class="text-caption grey--text mb-3">
-            Manilha ainda não definida (aguardando o vira).
+            {{ $t('forca.manilhaIndefinida') }}
           </div>
 
           <!-- Leque de cartas: força na horizontal, sem deslizar -->
           <div class="forca-leque__legenda d-flex justify-space-between text-caption grey--text text--darken-1 mb-1 px-1">
-            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> mais fraca</span>
-            <span>mais forte <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
+            <span><v-icon x-small color="grey darken-1">mdi-arrow-left-bold</v-icon> {{ $t('forca.maisFraca') }}</span>
+            <span>{{ $t('forca.maisForte') }} <v-icon x-small color="grey darken-1">mdi-arrow-right-bold</v-icon></span>
           </div>
           <div class="forca-leque">
             <div
@@ -129,7 +129,7 @@
           <!-- Desempate entre manilhas -->
           <div v-if="manilha" class="forca-desempate">
             <div class="text-subtitle-2 font-weight-bold mb-2">
-              Desempate entre manilhas
+              {{ $t('forca.desempate') }}
             </div>
             <div class="d-flex align-center flex-wrap">
               <template v-for="(suit, index) in suits">
@@ -143,15 +143,15 @@
               </template>
             </div>
             <div class="text-caption grey--text text--darken-1 mt-2">
-              Quanto mais à direita, mais forte no empate de manilhas.
+              {{ $t('forca.desempateDica') }}
             </div>
           </div>
           <div v-else class="forca-desempate forca-desempate--vazio text-caption grey--text">
-            Aguardando o vira para saber o desempate entre manilhas.
+            {{ $t('forca.desempateVazio') }}
           </div>
 
           <div class="text-caption grey--text text--darken-1 mt-4">
-            Cartas comuns de mesmo valor se anulam em pares.
+            {{ $t('forca.anulamEmPares') }}
           </div>
         </v-card-text>
       </v-card>

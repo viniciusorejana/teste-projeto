@@ -106,7 +106,9 @@ export default {
    pensada pra avisos que não precisam interromper a atenção do jogador
    (ex.: "Fulano palpitou N"), sem cobrir o centro da mesa. */
 .game-toast--canto {
-  top: calc(10px + env(safe-area-inset-top));
+  /* Abaixo do seletor de idioma fixo (App.vue), que ocupa o canto superior
+     direito em todas as telas. */
+  top: calc(52px + env(safe-area-inset-top));
   left: auto;
   right: 10px;
   transform: none;

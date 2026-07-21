@@ -6,24 +6,27 @@
       :class="{ 'pt-6': $vuetify.breakpoint.xsOnly }"
     >
       <v-col cols="12" sm="8" md="5">
-        <v-card class="pa-4" elevation="8">
+        <v-card class="pa-4 painel-mesa" elevation="8">
           <div class="cartas-decorativas d-flex justify-center mb-1">
             <div class="mini-carta carta-esq"><span class="naipe-preto">&#9824;</span></div>
             <div class="mini-carta carta-centro"><span class="naipe-vermelho">&#9829;</span></div>
             <div class="mini-carta carta-dir"><span class="naipe-vermelho">&#9830;</span></div>
           </div>
 
-          <v-card-title class="justify-center display-1 font-weight-black pt-0">
+          <v-card-title class="justify-center display-1 font-weight-black pt-0 text-center nome-jogo fonte-baralho">
             <span class="naipe-preto mr-2">&#9827;</span>
-            Fodinha
+            {{ $t('jogo.nome') }}
             <span class="naipe-preto ml-2">&#9824;</span>
           </v-card-title>
+          <p class="text-center caption grey--text text--darken-1 mb-4">
+            {{ $t('jogo.chamada') }}
+          </p>
 
           <v-card-text>
             <v-text-field
               ref="inputNome"
               v-model="nome"
-              label="Seu nome"
+              :label="$t('home.seuNome')"
               maxlength="16"
               counter
               outlined
@@ -31,7 +34,7 @@
               @focus="aoFocar"
             />
 
-            <p class="mb-2 font-weight-medium">Sua cor</p>
+            <p class="mb-2 font-weight-medium">{{ $t('home.suaCor') }}</p>
             <div class="d-flex flex-wrap mb-4">
               <v-avatar
                 v-for="c in cores"
@@ -45,7 +48,7 @@
               </v-avatar>
             </div>
 
-            <p class="mb-2 font-weight-medium">Jogada automática (se o tempo esgotar)</p>
+            <p class="mb-2 font-weight-medium">{{ $t('home.jogadaAutomatica') }}</p>
             <v-btn-toggle
               v-model="autoPlayStrategy"
               mandatory
@@ -53,16 +56,12 @@
               color="primary"
               class="mb-4 toggle-estrategia"
             >
-              <v-btn value="maior" small>Maior carta</v-btn>
-              <v-btn value="menor" small>Menor carta</v-btn>
-              <v-btn value="aleatoria" small>Aleatória</v-btn>
+              <v-btn value="maior" small>{{ $t('home.maiorCarta') }}</v-btn>
+              <v-btn value="menor" small>{{ $t('home.menorCarta') }}</v-btn>
+              <v-btn value="aleatoria" small>{{ $t('home.aleatoria') }}</v-btn>
             </v-btn-toggle>
             <p class="caption grey--text text--darken-1 mt-n3 mb-4">
-              Cada jogada tem 45s. Se o tempo acabar na hora de jogar uma
-              carta, o jogo escolhe por você seguindo essa preferência — pode
-              trocar a qualquer momento durante a partida. No palpite, se o
-              tempo esgotar, a escolha é sempre um valor aleatório válido
-              (essa preferência não vale pra ele).
+              {{ $t('home.explicacaoAutomatica') }}
             </p>
 
             <div class="d-flex justify-center mb-3">
@@ -74,7 +73,7 @@
                 :loading="criando"
                 @click="criarSala"
               >
-                Criar sala
+                {{ $t('home.criarSala') }}
               </v-btn>
             </div>
 
@@ -83,7 +82,7 @@
             <v-text-field
               ref="inputCodigo"
               v-model="codigoSala"
-              label="Código da sala"
+              :label="$t('home.codigoSala')"
               maxlength="5"
               outlined
               dense
@@ -100,7 +99,7 @@
                 :loading="entrando"
                 @click="entrarSala"
               >
-                Entrar na sala
+                {{ $t('home.entrarSala') }}
               </v-btn>
             </div>
 
@@ -113,7 +112,7 @@
         <div class="text-center mt-4 mb-2">
           <v-btn text color="white" class="btn-tutorial" @click="abrirTutorial">
             <v-icon left>mdi-help-circle-outline</v-icon>
-            Como jogar?
+            {{ $t('comum.comoJogar') }}
           </v-btn>
         </div>
       </v-col>
@@ -314,5 +313,15 @@ export default {
   .fill-height {
     align-items: flex-start;
   }
+}
+
+/* Painel em papel com filete dourado: o mesmo material das cartas, pra as
+   telas fora da mesa não destoarem do tabuleiro. */
+.painel-mesa {
+  border-radius: 14px !important;
+  background-color: var(--carta-papel) !important;
+  background-image: linear-gradient(160deg, #ffffff 0%, var(--carta-papel) 50%, var(--carta-papel-sombra) 100%) !important;
+  border: 1px solid rgba(255, 210, 74, .5) !important;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .5) !important;
 }
 </style>

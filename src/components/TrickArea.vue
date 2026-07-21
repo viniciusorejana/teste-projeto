@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex justify-center flex-wrap mesa">
     <div v-if="mesaAtual.length === 0" class="white--text caption mesa-vazia">
-      Aguardando jogadas...
+      {{ $t('mesa.aguardandoJogadas') }}
     </div>
     <transition-group name="carta-mesa-transicao" tag="div" class="mesa-grupo">
       <div v-for="jogada in mesaAtual" :key="jogada.seat" class="text-center mx-2 mb-2">
@@ -11,10 +11,10 @@
         <p class="white--text caption mt-1 mb-0">
           {{ nomeDoAssento(jogada.seat) }}
           <span v-if="anuladas.has(jogada.seat)" class="anulada-label">
-            <v-icon x-small color="#fff59d">mdi-cancel</v-icon> anulada
+            <v-icon x-small color="#fff59d">mdi-cancel</v-icon> {{ $t('mesa.anulada') }}
           </span>
           <span v-else-if="jogada.seat === seatGanhando" class="ganhando-label">
-            <v-icon x-small color="#ffd600">mdi-trophy</v-icon> ganhando
+            <v-icon x-small color="#ffd600">mdi-trophy</v-icon> {{ $t('mesa.ganhando') }}
           </span>
         </p>
       </div>

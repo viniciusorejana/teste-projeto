@@ -4,7 +4,7 @@ module.exports = {
   ],
 
   pwa: {
-    name: 'Fodinha',
+    name: 'Palpitezinho',
     themeColor: '#1B5E20',
     msTileColor: null,
     appleMobileWebAppCapable: 'yes',
@@ -24,6 +24,13 @@ module.exports = {
   },
 
   chainWebpack: config => {
+    // Título inicial da aba. Em runtime o idioma escolhido pode trocá-lo (o
+    // nome do jogo muda entre as variantes) — ver src/i18n/index.js.
+    config.plugin('html').tap(args => {
+      args[0].title = 'Palpitezinho'
+      return args
+    })
+
     // @vue/cli-plugin-pwa generates its own dist/manifest.json (merging
     // public/manifest.json with its defaults) and would otherwise conflict
     // with the raw copy of public/manifest.json performed by copy-webpack-plugin.

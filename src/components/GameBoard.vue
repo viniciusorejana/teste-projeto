@@ -1,5 +1,8 @@
 <template>
   <v-container fluid class="fill-height board pa-2 d-flex flex-column">
+    <!-- ZONA TOPO: informação da rodada e adversários. Altura variável, mas
+         sempre ancorada no alto — não disputa espaço com a mesa. -->
+    <div class="zona-topo">
     <div class="barra-superior d-flex align-center px-2">
       <div class="barra-superior-lado d-flex justify-start">
         <v-btn
@@ -7,7 +10,7 @@
           icon
           color="white"
           class="btn-tutorial"
-          aria-label="Como jogar"
+          :aria-label="$t('comum.comoJogar')"
           @click="mostrarTutorialLocal = true"
         >
           <v-icon>mdi-help-circle-outline</v-icon>
@@ -18,22 +21,25 @@
           small
           color="white"
           class="btn-tutorial"
-          aria-label="Como jogar"
+          :aria-label="$t('comum.comoJogar')"
           @click="mostrarTutorialLocal = true"
         >
           <v-icon left small>mdi-help-circle-outline</v-icon>
-          Como jogar?
+          {{ $t('comum.comoJogar') }}
         </v-btn>
       </div>
 
       <div class="text-center white--text barra-superior-titulo">
-        <div class="text-h6 font-weight-bold rodada-titulo">Rodada {{ gameState.rodadaNumero }}</div>
+        <div class="text-h6 font-weight-bold rodada-titulo fonte-baralho">
+          {{ $t('tabuleiro.rodada', { n: gameState.rodadaNumero }) }}
+        </div>
         <div v-if="gameState.tamanhoMao" class="caption white--text text--lighten-2 rodada-subtitulo">
-          {{ gameState.tamanhoMao }} carta(s) na mão
+          {{ $tc('tabuleiro.cartasNaMao', gameState.tamanhoMao, { n: gameState.tamanhoMao }) }}
         </div>
       </div>
 
-      <!-- Espelha a largura do botão à esquerda pra manter o título centralizado. -->
+      <!-- Espelha a largura do botão à esquerda pra manter o título centralizado
+           (o seletor de idioma fixo do App.vue pousa exatamente aqui). -->
       <div class="barra-superior-lado" aria-hidden="true"></div>
     </div>
 
@@ -54,7 +60,9 @@
         class="banner-vencedor mx-auto my-2 text-center"
       >
         <v-icon color="#212121" large class="mr-1">mdi-trophy</v-icon>
-        <span class="banner-vencedor-texto">{{ nomeVencedorDaMao }} venceu a mão!</span>
+        <span class="banner-vencedor-texto">
+          {{ $t('tabuleiro.venceuAMao', { nome: nomeVencedorDaMao }) }}
+        </span>
       </div>
     </transition>
 
@@ -79,15 +87,23 @@
       class="mx-auto mb-2"
       max-width="420"
     >
-      Rodada às cegas: você não vê sua própria carta, só as dos outros. Palpite (e jogue) no escuro!
+      {{ $t('tabuleiro.avisoCegas') }}
     </v-alert>
+    </div>
 
-    <div class="d-flex justify-center align-center flex-grow-1 flex-wrap mesa-area">
-      <div class="text-center mr-6 mb-2">
-        <template v-if="gameState.vira">
-          <p class="white--text caption mb-1">Vira</p>
+    <!-- ZONA MESA: ocupa toda a folga vertical que sobrar e centraliza as
+         cartas jogadas no eixo central da tela. O vira/força das cartas é um
+         apoio, não o assunto principal: em telas médias pra cima ele vira uma
+         coluna lateral ancorada fora do fluxo, e o recuo simétrico da mesa
+         garante que o centro da área de vazas continue sendo o centro real da
+         tela (antes os dois eram centralizados juntos, como um par, e a mesa
+         acabava deslocada pra direita). -->
+    <div class="zona-mesa mesa-area">
+      <div class="mesa-apoio text-center">
+        <div v-if="gameState.vira" class="mesa-apoio-vira">
+          <p class="white--text caption mb-1">{{ $t('tabuleiro.vira') }}</p>
           <Carta :carta="gameState.vira" />
-        </template>
+        </div>
         <v-chip
           color="secondary"
           text-color="#212121"
@@ -95,21 +111,30 @@
           @click="mostrarTabelaForca = true"
         >
           <v-icon left small color="#212121">mdi-cards</v-icon>
-          <span v-if="gameState.manilha">Manilha: {{ gameState.manilha }}</span>
-          <span v-else>Força das cartas</span>
+          <span v-if="gameState.manilha">{{ $t('tabuleiro.manilha', { rank: gameState.manilha }) }}</span>
+          <span v-else>{{ $t('tabuleiro.forcaDasCartas') }}</span>
         </v-chip>
         <p class="white--text caption mb-0 mt-1 dica-forca d-none d-sm-block">
-          toque para ver a força das cartas
+          {{ $t('tabuleiro.dicaForca') }}
         </p>
       </div>
-      <TrickArea
-        :mesa-atual="gameState.mesaAtual"
-        :jogadores="gameState.jogadores"
-        :manilha="gameState.manilha"
-      />
+
+      <div class="mesa-centro">
+        <TrickArea
+          :mesa-atual="gameState.mesaAtual"
+          :jogadores="gameState.jogadores"
+          :manilha="gameState.manilha"
+        />
+      </div>
     </div>
 
-    <div v-if="meuJogador" class="d-flex justify-center align-center mb-2 meu-jogador-linha">
+    <!-- ZONA JOGADOR: tudo que é "seu" fica agrupado embaixo, na mesma ordem
+         de leitura — quem você é, o que precisa fazer agora, e a sua mão. -->
+    <div class="zona-jogador">
+    <div v-if="meuJogador" class="mb-2 meu-jogador-linha">
+      <!-- Fora do fluxo, ancorado à esquerda do eixo central: assim o card do
+           jogador fica de fato no meio da tela, e o botão de estratégia
+           acompanha ao lado em vez de empurrá-lo pro lado. -->
       <v-menu offset-y top>
         <template #activator="{ on, attrs }">
           <v-btn
@@ -117,7 +142,7 @@
             small
             color="secondary"
             class="btn-estrategia"
-            aria-label="Jogada automática se o tempo esgotar"
+            :aria-label="$t('tabuleiro.estrategia.rotulo')"
             v-bind="attrs"
             v-on="on"
           >
@@ -125,7 +150,7 @@
           </v-btn>
         </template>
         <v-list dense>
-          <v-subheader>Se o tempo esgotar, jogar...</v-subheader>
+          <v-subheader>{{ $t('tabuleiro.estrategia.cabecalho') }}</v-subheader>
           <v-list-item
             v-for="opcao in opcoesEstrategia"
             :key="opcao.valor"
@@ -141,8 +166,7 @@
           </v-list-item>
           <v-divider class="my-1" />
           <p class="caption grey--text px-4 pt-1 pb-2 mb-0 aviso-palpite-auto">
-            No palpite, se o tempo esgotar a escolha é sempre um valor
-            aleatório válido — essa preferência vale só pra qual carta jogar.
+            {{ $t('tabuleiro.estrategia.aviso') }}
           </p>
         </v-list>
       </v-menu>
@@ -152,14 +176,13 @@
         :dealer="meuJogador.seat === gameState.dealerSeat"
         :destacado="meuJogador.seat === gameState.turnoSeat"
         sou-eu
-        class="mx-2"
       />
     </div>
 
-    <div class="text-center mb-2">
+    <div class="text-center mb-2 area-status">
       <template v-if="gameState.fase === 'aguardando_distribuir'">
         <p class="white--text">
-          {{ gameState.rodadaNumero > 0 ? 'Preparando a próxima rodada...' : 'Preparando a partida...' }}
+          {{ gameState.rodadaNumero > 0 ? $t('tabuleiro.preparandoRodada') : $t('tabuleiro.preparandoPartida') }}
         </p>
       </template>
 
@@ -171,13 +194,19 @@
           :meu-seat="gameState.meuAssento"
           @erro="mostrarErro"
         />
-        <p v-else class="white--text">Aguardando palpite de {{ nomeDaVez }}...</p>
+        <p v-else class="white--text">
+          {{ $t('tabuleiro.aguardandoPalpite', { nome: nomeDaVez }) }}
+        </p>
       </template>
 
       <template v-else-if="gameState.fase === 'jogando'">
-        <p v-if="gameState.turnoSeat === null" class="white--text">Resolvendo a vaza...</p>
-        <p v-else-if="!ehMinhaVez" class="white--text">Vez de {{ nomeDaVez }} jogar...</p>
-        <p v-else class="white--text font-weight-bold">Sua vez! Escolha uma carta.</p>
+        <p v-if="gameState.turnoSeat === null" class="white--text">
+          {{ $t('tabuleiro.resolvendoVaza') }}
+        </p>
+        <p v-else-if="!ehMinhaVez" class="white--text">
+          {{ $t('tabuleiro.vezDeJogar', { nome: nomeDaVez }) }}
+        </p>
+        <p v-else class="white--text font-weight-bold">{{ $t('tabuleiro.suaVezEscolha') }}</p>
       </template>
 
       <div v-if="segundosRestantes !== null" class="contador-turno mx-auto mt-1">
@@ -188,7 +217,8 @@
           :color="corContadorTurno"
         />
         <span class="caption white--text">
-          {{ segundosRestantes }}s<span class="d-none d-sm-inline"> para a jogada automática</span>
+          {{ $t('tabuleiro.segundos', { n: segundosRestantes })
+          }}<span class="d-none d-sm-inline">{{ $t('tabuleiro.paraJogadaAutomatica') }}</span>
         </span>
       </div>
     </div>
@@ -202,7 +232,7 @@
       <div v-if="minhaMao.length > 1" class="d-flex justify-center mb-1">
         <v-btn text x-small color="white" class="btn-ordenar" @click="ordenarMao">
           <v-icon left small>{{ ordemCrescente ? 'mdi-sort-ascending' : 'mdi-sort-descending' }}</v-icon>
-          Ordenar cartas
+          {{ $t('tabuleiro.ordenarCartas') }}
         </v-btn>
       </div>
       <transition-group name="carta-mao-transicao" tag="div" class="d-flex mao-container mao-scroll">
@@ -224,6 +254,7 @@
         </div>
       </transition-group>
     </template>
+    </div>
 
     <ResultadoRodadaDialog v-model="mostrarResultado" :resultado="gameState.ultimoResultado" />
 
@@ -279,11 +310,6 @@ export default {
     temErro: false,
     rotacoesCache: {},
     agora: Date.now(),
-    opcoesEstrategia: [
-      { valor: 'maior', label: 'a maior carta', icone: 'mdi-arrow-up-bold' },
-      { valor: 'menor', label: 'a menor carta', icone: 'mdi-arrow-down-bold' },
-      { valor: 'aleatoria', label: 'uma carta aleatória', icone: 'mdi-shuffle-variant' },
-    ],
     ordemManual: [],
     ordemCrescente: true,
     arrastando: null,
@@ -295,6 +321,16 @@ export default {
   computed: {
     ...mapState(['gameState']),
     ...mapGetters(['meuJogador', 'ehMinhaVez', 'souDono']),
+
+    // Computada (e não `data`) pra que os rótulos sejam retraduzidos quando o
+    // jogador trocar de idioma no meio da partida.
+    opcoesEstrategia () {
+      return [
+        { valor: 'maior', label: this.$t('tabuleiro.estrategia.maior'), icone: 'mdi-arrow-up-bold' },
+        { valor: 'menor', label: this.$t('tabuleiro.estrategia.menor'), icone: 'mdi-arrow-down-bold' },
+        { valor: 'aleatoria', label: this.$t('tabuleiro.estrategia.aleatoria'), icone: 'mdi-shuffle-variant' },
+      ]
+    },
 
     outrosJogadores () {
       const todos = this.gameState.jogadores
@@ -382,7 +418,7 @@ export default {
 
     nomeDono () {
       const j = this.gameState.jogadores.find((p) => p.seat === this.gameState.ownerSeat)
-      return j ? j.name : 'o dono da sala'
+      return j ? j.name : this.$t('comum.donoDaSala')
     },
 
     iconeEstrategiaAtual () {
@@ -414,7 +450,7 @@ export default {
       // a virada de "todos palpitaram" pra "hora de jogar" é o marco que
       // vale destacar. Ignora a primeira renderização (faseAntiga undefined).
       if (novaFase === 'jogando' && faseAntiga === 'palpite') {
-        this.anunciarToast({ texto: 'Todos palpitaram — hora de jogar!', icone: 'mdi-cards-playing' })
+        this.anunciarToast({ texto: this.$t('tabuleiro.toasts.todosPalpitaram'), icone: 'mdi-cards-playing' })
       }
     },
 
@@ -427,9 +463,12 @@ export default {
       // fila de toasts com avisos que já estão desatualizados quando aparecem.
       if (this.gameState.rodadaCega && this.gameState.fase === 'jogando') return
       if (novoSeat === this.gameState.meuAssento) {
-        this.anunciarToast({ texto: 'Sua vez!', icone: 'mdi-account-star', cor: 'amber' })
+        this.anunciarToast({ texto: this.$t('tabuleiro.toasts.suaVez'), icone: 'mdi-account-star', cor: 'amber' })
       } else {
-        this.anunciarToast({ texto: `Vez de ${this.nomeDoSeat(novoSeat)}`, icone: 'mdi-account-arrow-right' })
+        this.anunciarToast({
+          texto: this.$t('tabuleiro.toasts.vezDe', { nome: this.nomeDoSeat(novoSeat) }),
+          icone: 'mdi-account-arrow-right',
+        })
       }
     },
 
@@ -445,8 +484,13 @@ export default {
         const bidVazio = bidAntigo === null || bidAntigo === undefined
         const bidNovoValido = jogador.bid !== null && jogador.bid !== undefined
         if (bidVazio && bidNovoValido) {
-          const nome = jogador.seat === this.gameState.meuAssento ? 'Você' : jogador.name
-          this.anunciarToast({ texto: `${nome} palpitou ${jogador.bid}`, icone: 'mdi-hand-back-right' }, 'canto')
+          const nome = jogador.seat === this.gameState.meuAssento
+            ? this.$t('comum.vocêMaiusculo')
+            : jogador.name
+          this.anunciarToast({
+            texto: this.$t('tabuleiro.toasts.palpitou', { nome, valor: jogador.bid }),
+            icone: 'mdi-hand-back-right',
+          }, 'canto')
         }
       }
     },
@@ -678,6 +722,21 @@ export default {
   align-items: stretch !important;
 }
 
+/* As três zonas do tabuleiro. O topo e a base ocupam só o que precisam; toda
+   a folga vertical que sobra vai pra mesa, que centraliza as cartas jogadas
+   entre os adversários (em cima) e a sua mão (embaixo). */
+.zona-topo,
+.zona-jogador {
+  flex: 0 0 auto;
+  width: 100%;
+}
+
+.zona-mesa {
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: 0;
+}
+
 .barra-superior {
   line-height: 1.2;
 }
@@ -715,13 +774,97 @@ export default {
   min-height: 36px;
 }
 
+/* Eixo central: o card do jogador é o único item do fluxo, então ele fica
+   exatamente no meio da tela. O botão de estratégia é ancorado a partir do
+   próprio centro (50% + meia largura do card), de forma que ele acompanha o
+   card em qualquer largura de tela sem nunca deslocá-lo. */
 .meu-jogador-linha {
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .btn-estrategia {
-  position: relative;
+  position: absolute;
+  right: calc(50% + 74px);
+  top: 50%;
+  transform: translateY(-50%);
   z-index: 2;
+}
+
+/* Reserva vertical pra área de status/palpite: sem isso a troca de fase
+   (texto curto -> botões de palpite) empurra a mesa e a mão pra cima e pra
+   baixo a cada rodada. */
+.area-status {
+  min-height: 72px;
+}
+
+.mesa-area {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  /* A mesa é uma faixa centralizada em vez de ocupar a largura toda do
+     monitor. Como a coluna do vira/manilha é ancorada na borda desta faixa
+     (e não na da tela), num monitor largo ela acompanha as cartas em vez de
+     ficar isolada lá no canto. O centro da faixa continua sendo o centro real
+     da tela, então o eixo central não se mexe. */
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mesa-centro {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* Em telas estreitas o apoio volta pro fluxo, mas deitado (vira ao lado do
+   atalho de força das cartas) — na vertical ele comeria a altura que a mesa e
+   a mão precisam. O chip fica alinhado à base da carta, não centralizado
+   nela, pra linha ficar assentada. */
+.mesa-apoio {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+}
+
+.mesa-apoio-vira {
+  flex: 0 0 auto;
+}
+
+.mesa-apoio .chip-forca {
+  margin-top: 0 !important;
+}
+
+@media (min-width: 600px) {
+  .mesa-area {
+    flex-direction: row;
+    /* Recuo simétrico: abre espaço pra coluna lateral do vira à esquerda sem
+       tirar a área de vazas do centro real da tela. */
+    padding: 0 156px;
+  }
+
+  .mesa-apoio {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 140px;
+    /* De volta ao empilhamento vertical: como coluna lateral fora do fluxo,
+       a altura extra não disputa espaço com a mesa. */
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .mesa-apoio .chip-forca {
+    margin-top: 8px !important;
+  }
 }
 
 .aviso-palpite-auto {
@@ -798,8 +941,12 @@ export default {
   justify-content: safe center;
   /* As cartas da mão giram um pouco (rotacaoParaCarta) e têm sombra
      (elevation); sem essa folga, o overflow (necessário pro scroll
-     horizontal) corta a ponta/sombra das cartas nas bordas e no topo. */
-  padding: 14px 16px 0;
+     horizontal) corta a ponta/sombra das cartas nas bordas, no topo e
+     embaixo. A folga de baixo precisa ser declarada aqui junto das outras:
+     como este bloco vem depois de `.mao-container`, o shorthand `padding`
+     zerava o `padding-bottom` de lá e o giro deixava o canto inferior das
+     cartas cortado. */
+  padding: 14px 16px calc(18px + env(safe-area-inset-bottom));
   /* Esconde a barra de rolagem nativa (feia) sem desativar o gesto de
      arrastar/rolar por toque ou mouse. */
   scrollbar-width: none;

@@ -2,6 +2,7 @@ const { criarBaralho, embaralhar, manilhaRank, compararCartas, cartaId } = requi
 const { proximoTamanhoDeMao } = require('./rounds')
 const { palpiteProibido } = require('./bids')
 const { cartasElegiveis } = require('./vaza')
+const { erroDeJogo } = require('./erros')
 
 const VIDAS_INICIAIS = 5
 const MAX_JOGADORES = 6
@@ -54,11 +55,11 @@ class FodinhaGame {
 
   adicionarJogador ({ id, name, color, socketId, autoPlayStrategy }) {
     if (this.fase !== FASES.LOBBY) {
-      throw new Error('Não é possível entrar: a partida já começou.')
+      throw erroDeJogo('PARTIDA_JA_COMECOU', 'Não é possível entrar: a partida já começou.')
     }
     if (this.players.some((p) => p.id === id)) return
     if (this.players.length >= MAX_JOGADORES) {
-      throw new Error(`Sala cheia: o máximo é ${MAX_JOGADORES} jogadores.`)
+      throw erroDeJogo('SALA_CHEIA', `Sala cheia: o máximo é ${MAX_JOGADORES} jogadores.`, { max: MAX_JOGADORES })
     }
 
     const primeiroJogador = this.players.length === 0
@@ -88,10 +89,10 @@ class FodinhaGame {
   // momento, inclusive no meio da partida.
   atualizarEstrategiaAutomatica (playerId, estrategia) {
     if (!ESTRATEGIAS_AUTOMATICAS.includes(estrategia)) {
-      throw new Error('Estratégia de jogada automática inválida.')
+      throw erroDeJogo('ESTRATEGIA_INVALIDA', 'Estratégia de jogada automática inválida.')
     }
     const jogador = this.players.find((p) => p.id === playerId)
-    if (!jogador) throw new Error('Jogador não encontrado na sala.')
+    if (!jogador) throw erroDeJogo('JOGADOR_NAO_ENCONTRADO', 'Jogador não encontrado na sala.')
     jogador.autoPlayStrategy = estrategia
   }
 
@@ -117,7 +118,7 @@ class FodinhaGame {
   // Retoma a sessão de um jogador (token estável) numa nova conexão.
   reconectarJogador (token, novoSocketId) {
     const jogador = this.players.find((p) => p.id === token)
-    if (!jogador) throw new Error('Sessão inválida para esta sala.')
+    if (!jogador) throw erroDeJogo('SESSAO_INVALIDA', 'Sessão inválida para esta sala.')
     jogador.connected = true
     jogador.socketId = novoSocketId
     return jogador
@@ -138,12 +139,12 @@ class FodinhaGame {
 
   iniciarPartida (playerId) {
     if (this.fase !== FASES.LOBBY && this.fase !== FASES.FIM_DE_JOGO) {
-      throw new Error('A partida já foi iniciada.')
+      throw erroDeJogo('PARTIDA_JA_INICIADA', 'A partida já foi iniciada.')
     }
     if (playerId !== this.ownerId) {
-      throw new Error('Só o dono da sala pode começar a partida.')
+      throw erroDeJogo('SO_DONO_INICIA', 'Só o dono da sala pode começar a partida.')
     }
-    if (this.players.length < 2) throw new Error('São necessários pelo menos 2 jogadores.')
+    if (this.players.length < 2) throw erroDeJogo('MINIMO_JOGADORES', 'São necessários pelo menos 2 jogadores.', { min: 2 })
 
     this.players.forEach((p) => { p.lives = VIDAS_INICIAIS; p.eliminated = false })
     this.dealerSeat = Math.floor(Math.random() * this.players.length)
@@ -200,7 +201,7 @@ class FodinhaGame {
 
     const tamanhoMao = this.tamanhoMaoEstado.cartas
     if (!Number.isInteger(valor) || valor < 0 || valor > tamanhoMao) {
-      throw new Error(`Palpite deve ser um número entre 0 e ${tamanhoMao}.`)
+      throw erroDeJogo('PALPITE_INVALIDO', `Palpite deve ser um número entre 0 e ${tamanhoMao}.`, { max: tamanhoMao })
     }
 
     const ativos = this.jogadoresAtivos()
@@ -212,7 +213,7 @@ class FodinhaGame {
       const somaOutros = ativos.reduce((acc, p) => (p.id === playerId ? acc : acc + p.bid), 0)
       const proibido = palpiteProibido(tamanhoMao, somaOutros)
       if (proibido !== null && valor === proibido) {
-        throw new Error(`A soma dos palpites não pode fechar em ${tamanhoMao}. Escolha outro valor.`)
+        throw erroDeJogo('PALPITE_FECHA_CONTA', `A soma dos palpites não pode fechar em ${tamanhoMao}. Escolha outro valor.`, { total: tamanhoMao })
       }
     }
 
@@ -238,11 +239,11 @@ class FodinhaGame {
     let indice
     if (idCarta) {
       indice = jogador.hand.findIndex((c) => cartaId(c) === idCarta)
-      if (indice === -1) throw new Error('Carta não está na sua mão.')
+      if (indice === -1) throw erroDeJogo('CARTA_FORA_DA_MAO', 'Carta não está na sua mão.')
     } else {
       // Rodada às cegas: o jogador não sabe a identidade da própria carta,
       // então só pode jogar "sem escolher" quando resta exatamente uma.
-      if (jogador.hand.length !== 1) throw new Error('Escolha qual carta jogar.')
+      if (jogador.hand.length !== 1) throw erroDeJogo('ESCOLHA_CARTA', 'Escolha qual carta jogar.')
       indice = 0
     }
 
@@ -376,14 +377,14 @@ class FodinhaGame {
 
   _validarFase (esperada) {
     if (this.fase !== esperada) {
-      throw new Error(`Ação inválida para a fase atual (${this.fase}).`)
+      throw erroDeJogo('FASE_INVALIDA', `Ação inválida para a fase atual (${this.fase}).`, { fase: this.fase })
     }
   }
 
   _validarAtor (playerId, assentoEsperado) {
     const jogador = this.players.find((p) => p.id === playerId)
-    if (!jogador) throw new Error('Jogador não encontrado na sala.')
-    if (jogador.seat !== assentoEsperado) throw new Error('Não é a sua vez.')
+    if (!jogador) throw erroDeJogo('JOGADOR_NAO_ENCONTRADO', 'Jogador não encontrado na sala.')
+    if (jogador.seat !== assentoEsperado) throw erroDeJogo('NAO_E_SUA_VEZ', 'Não é a sua vez.')
     return jogador
   }
 

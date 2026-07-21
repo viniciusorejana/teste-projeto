@@ -1,4 +1,4 @@
-# Fodinha
+# Palpitezinho
 
 Jogo de cartas multiplayer (2 a 6 jogadores), jogável no navegador e instalável
 como PWA no celular. Front-end em Vue 2 + Vuetify, back-end em
@@ -20,7 +20,15 @@ os dados de ninguém além do que pode ver.
 - Tutorial interativo, tabela de força das cartas e toasts de aviso (vez,
   palpites) direto no tabuleiro.
 - Layout responsivo com atenção especial ao mobile (reordenar a mão
-  arrastando, tabuleiro compacto, PWA instalável).
+  arrastando, tabuleiro compacto, PWA instalável). No tabuleiro, os elementos
+  principais (vazas, seu assento, sua mão) dividem um mesmo eixo vertical
+  central; os apoios (vira/força das cartas, estratégia automática) ficam
+  ancorados ao lado sem deslocar esse eixo.
+- Três idiomas trocáveis a qualquer momento pelo seletor no canto superior
+  direito: **Português** (padrão, para todos os públicos, em que o jogo se
+  chama *Palpitezinho*), **Português (raiz)** (mesma tradução com o nome e o
+  tom originais de *Fodinha*) e **English**. A escolha é lembrada no
+  navegador.
 
 ## Estrutura
 
@@ -36,6 +44,17 @@ os dados de ninguém além do que pode ver.
     servidor via Socket.io.
   - `services/` — cliente Socket.io (`socket.js`) e persistência de sessão
     no `localStorage` (`sessao.js`).
+  - `locales/` — os arquivos de idioma (`pt-BR.js` é a referência de chaves;
+    `pt-BR-raiz.js` só declara o que muda em relação a ele; `en.js` é a
+    tradução completa) e `i18n/` a configuração do vue-i18n.
+
+### Traduções
+
+Para acrescentar um texto novo, adicione a chave em `src/locales/pt-BR.js` e a
+tradução correspondente em `en.js` — o `pt-BR-raiz.js` herda tudo do padrão e
+só precisa ser tocado se aquela frase mudar na versão original. Mensagens de
+erro do servidor viajam com um código estável (`server/src/game/erros.js`) e
+são traduzidas no cliente pelas chaves em `erros`.
 
 ## Project setup
 ```

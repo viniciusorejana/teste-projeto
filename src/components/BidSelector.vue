@@ -1,6 +1,6 @@
 <template>
   <div class="text-center">
-    <p class="white--text font-weight-bold mb-2">Quantas você vai fazer?</p>
+    <p class="white--text font-weight-bold mb-2">{{ $t('palpite.pergunta') }}</p>
     <transition-group name="palpite-btn-transicao" tag="div" class="d-flex flex-wrap justify-center opcoes-palpite">
       <v-btn
         v-for="(valor, index) in opcoes"
@@ -17,7 +17,7 @@
       </v-btn>
     </transition-group>
     <p v-if="palpiteProibido !== null" class="caption white--text mt-1 aviso-proibido">
-      Você não pode palpitar {{ palpiteProibido }} (fecharia a conta certinha)
+      {{ $t('palpite.proibido', { valor: palpiteProibido }) }}
     </p>
   </div>
 </template>

@@ -1,0 +1,260 @@
+// Português brasileiro "para todos os públicos" — é o idioma padrão do jogo.
+// Este arquivo é a referência de chaves: os outros idiomas (pt-BR-raiz, en)
+// são comparados com ele, e o pt-BR-raiz só declara o que muda.
+export default {
+  jogo: {
+    nome: 'Palpitezinho',
+    chamada: 'Dê o palpite certo e sobreviva!',
+    conviteTitulo: 'Palpitezinho',
+    conviteTexto: 'Entra na minha sala de Palpitezinho!',
+  },
+
+  comum: {
+    fechar: 'Fechar',
+    sair: 'Sair',
+    voltar: 'Voltar',
+    anterior: 'Anterior',
+    proximo: 'Próximo',
+    voce: 'você',
+    vocêMaiusculo: 'Você',
+    copiar: 'Copiar',
+    compartilhar: 'Compartilhar',
+    comoJogar: 'Como jogar?',
+    donoDaSala: 'o dono da sala',
+  },
+
+  idioma: {
+    titulo: 'Idioma',
+    escolher: 'Escolher idioma',
+    nomes: {
+      'pt-BR': 'Português',
+      'pt-BR-raiz': 'Português (raiz)',
+      en: 'English',
+    },
+    descricoes: {
+      'pt-BR': 'para todos os públicos',
+      'pt-BR-raiz': 'nome original, sem filtro',
+      en: 'English (US)',
+    },
+  },
+
+  home: {
+    seuNome: 'Seu nome',
+    suaCor: 'Sua cor',
+    jogadaAutomatica: 'Jogada automática (se o tempo esgotar)',
+    maiorCarta: 'Maior carta',
+    menorCarta: 'Menor carta',
+    aleatoria: 'Aleatória',
+    explicacaoAutomatica: 'Cada jogada tem 45s. Se o tempo acabar na hora de jogar uma carta, o jogo escolhe por você seguindo essa preferência — pode trocar a qualquer momento durante a partida. No palpite, se o tempo esgotar, a escolha é sempre um valor aleatório válido (essa preferência não vale pra ele).',
+    criarSala: 'Criar sala',
+    codigoSala: 'Código da sala',
+    entrarSala: 'Entrar na sala',
+  },
+
+  lobby: {
+    codigoSala: 'Código da sala',
+    copiado: 'Código copiado!',
+    voceChip: 'você',
+    donoChip: 'dono',
+    offline: 'offline',
+    aguardandoJogador: 'aguardando jogador...',
+    jogadoresNaSala: '{n} jogador na sala (mínimo {min} para começar) | {n} jogadores na sala (mínimo {min} para começar)',
+    comecar: 'Começar',
+    aguardandoDono: 'Aguardando {nome} começar a partida...',
+    sairDaSala: 'Sair da sala',
+  },
+
+  sala: {
+    entrarNaSala: 'Entrar na sala {codigo}',
+    seuNome: 'Seu nome',
+    entrar: 'Entrar na sala',
+    reconectando: 'Reconectando à sala...',
+    naoFoiPossivel: 'Não foi possível entrar nessa sala. Volte para o início e tente novamente.',
+    voltarAoInicio: 'Voltar ao início',
+  },
+
+  tabuleiro: {
+    rodada: 'Rodada {n}',
+    cartasNaMao: '{n} carta na mão | {n} cartas na mão',
+    vira: 'Vira',
+    manilha: 'Manilha: {rank}',
+    forcaDasCartas: 'Força das cartas',
+    dicaForca: 'toque para ver a força das cartas',
+    venceuAMao: '{nome} venceu a mão!',
+    avisoCegas: 'Rodada às cegas: você não vê sua própria carta, só as dos outros. Palpite (e jogue) no escuro!',
+    preparandoRodada: 'Preparando a próxima rodada...',
+    preparandoPartida: 'Preparando a partida...',
+    aguardandoPalpite: 'Aguardando palpite de {nome}...',
+    resolvendoVaza: 'Resolvendo a vaza...',
+    vezDeJogar: 'Vez de {nome} jogar...',
+    suaVezEscolha: 'Sua vez! Escolha uma carta.',
+    ordenarCartas: 'Ordenar cartas',
+    segundos: '{n}s',
+    paraJogadaAutomatica: ' para a jogada automática',
+    estrategia: {
+      rotulo: 'Jogada automática se o tempo esgotar',
+      cabecalho: 'Se o tempo esgotar, jogar...',
+      maior: 'a maior carta',
+      menor: 'a menor carta',
+      aleatoria: 'uma carta aleatória',
+      aviso: 'No palpite, se o tempo esgotar a escolha é sempre um valor aleatório válido — essa preferência vale só pra qual carta jogar.',
+    },
+    toasts: {
+      todosPalpitaram: 'Todos palpitaram — hora de jogar!',
+      suaVez: 'Sua vez!',
+      vezDe: 'Vez de {nome}',
+      palpitou: '{nome} palpitou {valor}',
+    },
+  },
+
+  palpite: {
+    pergunta: 'Quantas você vai fazer?',
+    proibido: 'Você não pode palpitar {valor} (fecharia a conta certinha)',
+  },
+
+  assento: {
+    sufixoVoce: '(você)',
+    maosNaRodada: '✓ {n} mão na rodada | ✓ {n} mãos na rodada',
+    eliminado: 'eliminado',
+    palpite: 'palpite {valor}',
+    embaralha: 'embaralha',
+    vez: 'vez',
+  },
+
+  mesa: {
+    aguardandoJogadas: 'Aguardando jogadas...',
+    anulada: 'anulada',
+    ganhando: 'ganhando',
+  },
+
+  resultado: {
+    titulo: 'Resultado da rodada {n}',
+    palpitouFez: 'palpitou {bid} · fez {made}',
+    acertou: 'acertou',
+    perdeuVidas: '-{n} vida | -{n} vidas',
+  },
+
+  fimDeJogo: {
+    titulo: 'Fim de jogo!',
+    venceu: 'venceu a partida!',
+    jogarNovamente: 'Jogar novamente',
+    aguardandoDono: 'Aguardando {nome} decidir se joga de novo...',
+  },
+
+  forca: {
+    titulo: 'Força das cartas',
+    manilhaDaRodada: '{rank} é a manilha desta rodada',
+    manilhaIndefinida: 'Manilha ainda não definida (aguardando o vira).',
+    maisFraca: 'mais fraca',
+    maisForte: 'mais forte',
+    desempate: 'Desempate entre manilhas',
+    desempateDica: 'Quanto mais à direita, mais forte no empate de manilhas.',
+    desempateVazio: 'Aguardando o vira para saber o desempate entre manilhas.',
+    anulamEmPares: 'Cartas comuns de mesmo valor se anulam em pares.',
+  },
+
+  tutorial: {
+    titulo: 'Como jogar {jogo}',
+    fecharAria: 'Fechar tutorial',
+    irParaPasso: 'Ir para o passo {n}',
+    contador: '{atual} / {total}',
+    objetivo: {
+      titulo: '🎯 Objetivo do jogo',
+      p1: '{jogo} é um jogo de apostas: em cada rodada você "palpita" quantas vazas (mãos) vai vencer e depois tenta acertar na prática.',
+      p2: 'Todo mundo começa com {vidas} (❤️❤️❤️❤️❤️). Errar o palpite custa vidas. Quem perde todas as vidas é eliminado.',
+      p2Forte: '5 vidas',
+      p3: 'O último jogador que sobrar com vida é o campeão!',
+    },
+    rodada: {
+      titulo: '🃏 Como funciona a rodada',
+      p1: 'A cada rodada, o número de cartas que você recebe na mão muda: ele vai {aumentando} rodada após rodada e depois {diminuindo}, até acabar o baralho de 52 cartas.',
+      p1Forte1: 'aumentando',
+      p1Forte2: 'diminuindo',
+      p2: 'No início de cada rodada, uma carta é virada na mesa: o {vira}. Ele define qual carta manda naquela rodada (falamos disso no próximo passo).',
+      p2Forte: '"vira"',
+      p3: 'Cada carta jogada por você forma uma "vaza" com as cartas dos outros jogadores — quem jogar a carta mais forte, vence a vaza.',
+    },
+    palpite: {
+      titulo: '🤔 O palpite',
+      p1: 'Antes de jogar, cada jogador dá um {palpite}: quantas vazas acha que vai ganhar naquela rodada.',
+      p1Forte: 'palpite',
+      p2: 'Tem uma pegadinha chamada {fechaAConta}: o último jogador a palpitar não pode dar um número que faça a soma de todos os palpites bater exatamente com o total de cartas da rodada.',
+      p2Forte: '"fecha a conta"',
+      p3: 'Ou seja: sempre sobra alguém que vai errar de propósito (ou sem querer) — é isso que deixa o jogo tenso!',
+      p4: '{excecao} na mão de {umaCarta} (a rodada às cegas) essa regra não vale — todo mundo pode palpitar livremente, mesmo que a soma feche certinha, e é possível todo mundo acertar o palpite ao mesmo tempo.',
+      p4Forte1: 'Exceção:',
+      p4Forte2: '1 carta',
+    },
+    forca: {
+      titulo: '💪 Força das cartas',
+      p1: 'Da mais forte para a mais fraca, a ordem é sempre esta:',
+      manilhaLinha: 'Manilha',
+      manilhaNota: 'ganha de todas',
+      notaMaisForte: 'mais forte',
+      notaMaisFraca: 'mais fraca',
+      p2: 'Repare que o {maisForte} do jogo e o {maisFraca} — o baralho é "sujo", fora da ordem que a gente costuma pensar.',
+      p2Forte1: '3 é a carta mais forte',
+      p2Forte2: '4 é a mais fraca',
+    },
+    manilha: {
+      titulo: '⭐ A manilha',
+      p1: 'A manilha é definida pelo "vira": ela é sempre o {proximoRank} na sequência de força (se o vira for o 3, a manilha volta pro 4).',
+      p1Forte: 'próximo rank depois do vira',
+      exemplo: 'Exemplo: vira {vira} → manilha é {manilha}. Cartas de rank manilha ganham de qualquer outra carta, até do 3!',
+      p2: 'Quando duas manilhas se encontram, desempata pelo naipe, do mais fraco pro mais forte:',
+      p3: 'Paus é a manilha mais forte, ouros é a mais fraca.',
+    },
+    empate: {
+      titulo: '🔄 Empate na mesa',
+      p1: 'Se duas cartas do {mesmoRank} (que não sejam manilha) caírem na mesma vaza, elas se anulam em pares: é como se as duas nem tivessem sido jogadas.',
+      p1Forte: 'mesmo rank',
+      p2: 'A anulação acontece na ordem em que as cartas caíram na mesa, sempre formando pares.',
+      p3: '{manilhasNuncaAnulam} — nem entre si, nem com outras cartas.',
+      p3Forte: 'Manilhas nunca se anulam',
+    },
+    cegas: {
+      titulo: '🙈 Rodada às cegas',
+      p1: 'Quando a rodada tem só {umaCarta} na mão, ela vira "às cegas": você não vê a sua própria carta, ela fica virada pra baixo só pra você.',
+      p1Forte: '1 carta',
+      p2: 'Os outros jogadores enxergam a sua carta normalmente — você precisa palpitar e jogar olhando só as cartas dos adversários.',
+    },
+    vidas: {
+      titulo: '❤️ Vidas e vitória',
+      p1: 'No final da rodada, quem {errouOPalpite} perde vidas: a diferença entre o que apostou e o que realmente fez em vazas.',
+      p1Forte: 'errou o palpite',
+      p2: 'Errou por 2? Perde 2 vidas. Errou por 3? Perde 3 vidas. Quanto mais longe do palpite, mais caro sai.',
+      p3: 'Cada jogador começa com 5 vidas. Quem chega a 0 é eliminado. O último que sobrar em pé vence a partida!',
+      botao: 'Entendi, bora jogar!',
+    },
+  },
+
+  naipes: {
+    ouros: 'Ouros',
+    espadas: 'Espadas',
+    copas: 'Copas',
+    paus: 'Paus',
+  },
+
+  // Espelha os códigos lançados pelo servidor (server/src/game/erros.js). O
+  // servidor continua mandando uma mensagem em português como fallback, usada
+  // só se aparecer um código que o cliente ainda não conhece.
+  erros: {
+    SEM_NOME: 'Informe um nome.',
+    SALA_NAO_ENCONTRADA: 'Sala não encontrada.',
+    PARTIDA_JA_COMECOU: 'Não é possível entrar: a partida já começou.',
+    SALA_CHEIA: 'Sala cheia: o máximo é {max} jogadores.',
+    ESTRATEGIA_INVALIDA: 'Estratégia de jogada automática inválida.',
+    JOGADOR_NAO_ENCONTRADO: 'Jogador não encontrado na sala.',
+    SESSAO_INVALIDA: 'Sessão inválida para esta sala.',
+    PARTIDA_JA_INICIADA: 'A partida já foi iniciada.',
+    SO_DONO_INICIA: 'Só o dono da sala pode começar a partida.',
+    MINIMO_JOGADORES: 'São necessários pelo menos {min} jogadores.',
+    PALPITE_INVALIDO: 'Palpite deve ser um número entre 0 e {max}.',
+    PALPITE_FECHA_CONTA: 'A soma dos palpites não pode fechar em {total}. Escolha outro valor.',
+    CARTA_FORA_DA_MAO: 'Carta não está na sua mão.',
+    ESCOLHA_CARTA: 'Escolha qual carta jogar.',
+    FASE_INVALIDA: 'Ação inválida para a fase atual ({fase}).',
+    NAO_E_SUA_VEZ: 'Não é a sua vez.',
+    SEM_CONEXAO: 'Sem conexão com o servidor.',
+  },
+}

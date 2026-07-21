@@ -6,13 +6,13 @@
           <v-col cols="12" sm="8" md="5">
             <v-card class="pa-4" elevation="8">
               <v-card-title class="justify-center text-center break-word">
-                Entrar na sala {{ $route.params.code }}
+                {{ $t('sala.entrarNaSala', { codigo: $route.params.code }) }}
               </v-card-title>
               <v-card-text>
                 <v-text-field
                   ref="inputNome"
                   v-model="nome"
-                  label="Seu nome"
+                  :label="$t('sala.seuNome')"
                   maxlength="16"
                   counter
                   outlined
@@ -29,7 +29,7 @@
                     :loading="entrando"
                     @click="entrar"
                   >
-                    Entrar na sala
+                    {{ $t('sala.entrar') }}
                   </v-btn>
                 </div>
                 <v-alert v-if="erro" type="error" dense class="mt-4">{{ erro }}</v-alert>
@@ -43,13 +43,13 @@
     <div v-else-if="!gameState" class="fill-height d-flex align-center justify-center">
       <div v-if="roomCode" class="text-center white--text">
         <v-progress-circular indeterminate color="white" size="48" class="mb-3" />
-        <p>Reconectando à sala...</p>
+        <p>{{ $t('sala.reconectando') }}</p>
       </div>
       <v-alert v-else type="warning" class="ma-4">
-        Não foi possível entrar nessa sala. Volte para o início e tente novamente.
+        {{ $t('sala.naoFoiPossivel') }}
         <div class="mt-3">
           <v-btn small color="white" text @click="$router.push({ name: 'Home' })">
-            Voltar ao início
+            {{ $t('sala.voltarAoInicio') }}
           </v-btn>
         </div>
       </v-alert>

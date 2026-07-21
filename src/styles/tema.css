@@ -1,0 +1,150 @@
+/* Tema visual do jogo: mesa de carteado.
+ *
+ * Todas as texturas são geradas em CSS (gradientes + ruído SVG embutido como
+ * data URI). Nada de imagem externa: o app é um PWA e precisa continuar
+ * bonito offline, e um SVG de ruído pesa algumas centenas de bytes contra
+ * dezenas de KB de um JPEG de feltro.
+ */
+
+:root {
+  /* Feltro da mesa */
+  --feltro-claro: #1d7b41;
+  --feltro-base: #10592e;
+  --feltro-escuro: #06301a;
+
+  /* Madeira da borda da mesa */
+  --madeira-clara: #7a4a24;
+  --madeira-base: #5a3418;
+  --madeira-escura: #351d0c;
+
+  /* Carta */
+  --carta-papel: #fdfbf5;
+  --carta-papel-sombra: #ece5d5;
+  --carta-vermelho: #c62828;
+  --carta-preto: #1a1a1a;
+  --carta-borda: rgba(0, 0, 0, .18);
+  --carta-raio: 9px;
+
+  /* Destaques */
+  --ouro: #ffd24a;
+  --ouro-escuro: #b8860b;
+}
+
+/* Ruído fino reaproveitado pelo feltro e pelo papel das cartas. Fica como
+   variável pra não repetir o SVG inteiro em cada regra. */
+:root {
+  --ruido-fino: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='140' height='140'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='140' height='140' filter='url(%23r)'/></svg>");
+}
+
+/* ---- Superfícies ---- */
+
+/* Feltro: ruído por cima de um gradiente radial, com uma tecelagem diagonal
+   discreta pra sugerir a trama do tecido. */
+:root {
+  --feltro-imagem:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, .022) 0 2px, transparent 2px 4px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, .022) 0 2px, transparent 2px 4px),
+    radial-gradient(ellipse 120% 90% at 50% 30%, var(--feltro-claro) 0%, var(--feltro-base) 45%, var(--feltro-escuro) 100%);
+}
+
+.textura-feltro {
+  background-color: var(--feltro-base);
+  background-image: var(--feltro-imagem);
+}
+
+/* O Vuetify pinta `.v-application` com a cor de fundo do tema; este seletor
+   mais específico garante que o feltro prevaleça no raiz do app. */
+.v-application.textura-feltro {
+  background-color: var(--feltro-base) !important;
+  background-image: var(--feltro-imagem) !important;
+}
+
+/* O conteúdo do Vuetify precisa criar contexto acima das camadas de ruído e
+   vinheta (ambas `position: fixed`, logo abaixo). */
+.v-application.textura-feltro > .v-application--wrap {
+  position: relative;
+  z-index: 1;
+}
+
+/* Ruído e vinheta são camadas `fixed` que cobrem a viewport inteira, então só
+   fazem sentido no raiz do app — a mesma classe usada num painel menor (o
+   cabeçalho do tutorial, por exemplo) recebe apenas o gradiente acima. */
+.v-application.textura-feltro::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: var(--ruido-fino);
+  opacity: .05;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Vinheta: escurece as bordas da mesa, como a iluminação de um salão focada
+   no centro. */
+.v-application.textura-feltro::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 90% 75% at 50% 45%, transparent 40%, rgba(0, 0, 0, .42) 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Papel das cartas e dos painéis claros. */
+.textura-papel {
+  background-color: var(--carta-papel);
+  background-image:
+    linear-gradient(160deg, #ffffff 0%, var(--carta-papel) 45%, var(--carta-papel-sombra) 100%);
+}
+
+/* Madeira: veios verticais irregulares somados a um gradiente quente. */
+.textura-madeira {
+  background-color: var(--madeira-base);
+  background-image:
+    repeating-linear-gradient(90deg,
+      rgba(0, 0, 0, .16) 0 2px,
+      transparent 2px 7px,
+      rgba(255, 255, 255, .05) 7px 8px,
+      transparent 8px 15px),
+    linear-gradient(180deg, var(--madeira-clara) 0%, var(--madeira-base) 55%, var(--madeira-escura) 100%);
+}
+
+/* ---- Tipografia de jogo ---- */
+
+/* Serifada para títulos: dá o ar de baralho/cassino sem depender de fonte
+   baixada da internet (a lista abaixo é toda de fontes de sistema). */
+.fonte-baralho {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+  letter-spacing: .01em;
+}
+
+/* ---- Peças ---- */
+
+/* Ficha de cassino: usada nos atalhos redondos (estratégia, manilha). */
+.ficha {
+  position: relative;
+  border-radius: 50%;
+  background-image:
+    repeating-conic-gradient(from 0deg,
+      rgba(255, 255, 255, .85) 0deg 14deg,
+      transparent 14deg 28deg);
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, .45),
+    inset 0 0 0 3px rgba(255, 255, 255, .55);
+}
+
+/* Painel de madeira com filete dourado — moldura dos diálogos. */
+.moldura-salao {
+  border: 1px solid rgba(255, 210, 74, .35);
+  box-shadow:
+    0 18px 45px rgba(0, 0, 0, .55),
+    inset 0 0 0 1px rgba(255, 255, 255, .06);
+}
+
+/* O conteúdo do app precisa ficar acima das camadas de ruído/vinheta, que são
+   `position: fixed` e cobririam os cliques se não fosse o pointer-events:none
+   delas — o z-index aqui garante também a ordem visual. */
+.acima-da-mesa {
+  position: relative;
+  z-index: 1;
+}

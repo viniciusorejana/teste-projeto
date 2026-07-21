@@ -7,12 +7,12 @@
     scrollable
   >
     <v-card class="tutorial-card d-flex flex-column white">
-      <div class="tutorial-header d-flex align-center justify-space-between px-4 py-3">
-        <h2 class="text-h6 font-weight-bold black--text mb-0">
-          Como jogar Fodinha
+      <div class="tutorial-header textura-feltro d-flex align-center justify-space-between px-4 py-3">
+        <h2 class="text-h6 font-weight-bold white--text mb-0 fonte-baralho">
+          {{ $t('tutorial.titulo', { jogo: $t('jogo.nome') }) }}
         </h2>
-        <v-btn icon aria-label="Fechar tutorial" @click="fechar">
-          <v-icon color="black">mdi-close</v-icon>
+        <v-btn icon :aria-label="$t('tutorial.fecharAria')" @click="fechar">
+          <v-icon color="white">mdi-close</v-icon>
         </v-btn>
       </div>
 
@@ -24,20 +24,16 @@
           <v-window-item :value="0">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                🎯 Objetivo do jogo
+                {{ $t('tutorial.objetivo.titulo') }}
               </h3>
               <p class="black--text">
-                Fodinha é um jogo de apostas: em cada rodada você "palpita"
-                quantas vazas (mãos) vai vencer e depois tenta acertar na
-                prática.
+                {{ $t('tutorial.objetivo.p1', { jogo: $t('jogo.nome') }) }}
               </p>
-              <p class="black--text">
-                Todo mundo começa com <strong>5 vidas</strong> (❤️❤️❤️❤️❤️).
-                Errar o palpite custa vidas. Quem perde todas as vidas é
-                eliminado.
-              </p>
+              <i18n path="tutorial.objetivo.p2" tag="p" class="black--text">
+                <template #vidas><strong>{{ $t('tutorial.objetivo.p2Forte') }}</strong></template>
+              </i18n>
               <p class="black--text mb-0">
-                O último jogador que sobrar com vida é o campeão!
+                {{ $t('tutorial.objetivo.p3') }}
               </p>
             </div>
           </v-window-item>
@@ -46,23 +42,17 @@
           <v-window-item :value="1">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                🃏 Como funciona a rodada
+                {{ $t('tutorial.rodada.titulo') }}
               </h3>
-              <p class="black--text">
-                A cada rodada, o número de cartas que você recebe na mão muda:
-                ele vai <strong>aumentando</strong> rodada após rodada e depois
-                <strong>diminuindo</strong>, até acabar o baralho de 52
-                cartas.
-              </p>
-              <p class="black--text">
-                No início de cada rodada, uma carta é virada na mesa: o
-                <strong>"vira"</strong>. Ele define qual carta manda naquela
-                rodada (falamos disso no próximo passo).
-              </p>
+              <i18n path="tutorial.rodada.p1" tag="p" class="black--text">
+                <template #aumentando><strong>{{ $t('tutorial.rodada.p1Forte1') }}</strong></template>
+                <template #diminuindo><strong>{{ $t('tutorial.rodada.p1Forte2') }}</strong></template>
+              </i18n>
+              <i18n path="tutorial.rodada.p2" tag="p" class="black--text">
+                <template #vira><strong>{{ $t('tutorial.rodada.p2Forte') }}</strong></template>
+              </i18n>
               <p class="black--text mb-0">
-                Cada carta jogada por você forma uma "vaza" com as cartas dos
-                outros jogadores — quem jogar a carta mais forte, vence a
-                vaza.
+                {{ $t('tutorial.rodada.p3') }}
               </p>
             </div>
           </v-window-item>
@@ -71,28 +61,21 @@
           <v-window-item :value="2">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                🤔 O palpite
+                {{ $t('tutorial.palpite.titulo') }}
               </h3>
-              <p class="black--text">
-                Antes de jogar, cada jogador dá um <strong>palpite</strong>:
-                quantas vazas acha que vai ganhar naquela rodada.
-              </p>
-              <p class="black--text">
-                Tem uma pegadinha chamada <strong>"fecha a conta"</strong>: o
-                último jogador a palpitar não pode dar um número que faça a
-                soma de todos os palpites bater exatamente com o total de
-                cartas da rodada.
-              </p>
+              <i18n path="tutorial.palpite.p1" tag="p" class="black--text">
+                <template #palpite><strong>{{ $t('tutorial.palpite.p1Forte') }}</strong></template>
+              </i18n>
+              <i18n path="tutorial.palpite.p2" tag="p" class="black--text">
+                <template #fechaAConta><strong>{{ $t('tutorial.palpite.p2Forte') }}</strong></template>
+              </i18n>
               <p class="black--text mb-0">
-                Ou seja: sempre sobra alguém que vai errar de propósito (ou
-                sem querer) — é isso que deixa o jogo tenso!
+                {{ $t('tutorial.palpite.p3') }}
               </p>
-              <p class="black--text mt-3 mb-0">
-                <strong>Exceção:</strong> na mão de <strong>1 carta</strong>
-                (a rodada às cegas) essa regra não vale — todo mundo pode
-                palpitar livremente, mesmo que a soma feche certinha, e é
-                possível todo mundo acertar o palpite ao mesmo tempo.
-              </p>
+              <i18n path="tutorial.palpite.p4" tag="p" class="black--text mt-3 mb-0">
+                <template #excecao><strong>{{ $t('tutorial.palpite.p4Forte1') }}</strong></template>
+                <template #umaCarta><strong>{{ $t('tutorial.palpite.p4Forte2') }}</strong></template>
+              </i18n>
             </div>
           </v-window-item>
 
@@ -100,28 +83,57 @@
           <v-window-item :value="3">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                💪 Força das cartas
+                {{ $t('tutorial.forca.titulo') }}
               </h3>
               <p class="black--text mb-4">
-                Da mais fraca para a mais forte, a ordem das cartas é sempre a
-                mesma:
+                {{ $t('tutorial.forca.p1') }}
               </p>
-              <div class="mini-carta-row">
+
+              <!-- Listagem de força: uma linha por rank, da mais forte pra
+                   mais fraca, com a barra dando a leitura relativa de
+                   imediato. A manilha entra fora da numeração porque não é um
+                   rank fixo — depende do vira e ganha de todo o resto. -->
+              <div class="ranking">
+                <div class="ranking-linha ranking-linha--manilha">
+                  <span class="ranking-posicao ranking-posicao--coroa">
+                    <v-icon x-small color="#3b2a00">mdi-crown</v-icon>
+                  </span>
+                  <span class="ranking-carta ranking-carta--manilha">★</span>
+                  <span class="ranking-barra">
+                    <span class="ranking-barra-fill ranking-barra-fill--manilha" style="width: 100%"></span>
+                  </span>
+                  <span class="ranking-nome black--text">
+                    {{ $t('tutorial.forca.manilhaLinha') }}
+                    <small class="ranking-nota">{{ $t('tutorial.forca.manilhaNota') }}</small>
+                  </span>
+                </div>
+
                 <div
-                  v-for="(c, i) in sequenciaRanks"
-                  :key="i"
-                  class="mini-carta-wrap"
+                  v-for="item in rankingForca"
+                  :key="item.rank"
+                  class="ranking-linha"
                 >
-                  <div class="mini-carta">
-                    <span class="mini-carta-rank black--text">{{ c }}</span>
-                  </div>
+                  <span class="ranking-posicao">{{ item.posicao }}</span>
+                  <span :class="['ranking-carta', { 'ranking-carta--topo': item.posicao === 1 }]">
+                    {{ item.rank }}
+                  </span>
+                  <span class="ranking-barra">
+                    <span class="ranking-barra-fill" :style="{ width: item.forca + '%' }"></span>
+                  </span>
+                  <span class="ranking-nome black--text">
+                    <small v-if="item.posicao === 1" class="ranking-nota ranking-nota--forte">
+                      {{ $t('tutorial.forca.notaMaisForte') }}
+                    </small>
+                    <small v-else-if="item.ultima" class="ranking-nota">
+                      {{ $t('tutorial.forca.notaMaisFraca') }}
+                    </small>
+                  </span>
                 </div>
               </div>
-              <p class="black--text mt-4 mb-0">
-                Repare que o <strong>3 é a carta mais forte</strong> do jogo e
-                o <strong>4 é a mais fraca</strong> — o baralho é "sujo",
-                fora da ordem que a gente costuma pensar.
-              </p>
+              <i18n path="tutorial.forca.p2" tag="p" class="black--text mt-4 mb-0">
+                <template #maisForte><strong>{{ $t('tutorial.forca.p2Forte1') }}</strong></template>
+                <template #maisFraca><strong>{{ $t('tutorial.forca.p2Forte2') }}</strong></template>
+              </i18n>
             </div>
           </v-window-item>
 
@@ -129,13 +141,11 @@
           <v-window-item :value="4">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                ⭐ A manilha
+                {{ $t('tutorial.manilha.titulo') }}
               </h3>
-              <p class="black--text">
-                A manilha é definida pelo "vira": ela é sempre o
-                <strong>próximo rank depois do vira</strong> na sequência de
-                força (se o vira for o 3, a manilha volta pro 4).
-              </p>
+              <i18n path="tutorial.manilha.p1" tag="p" class="black--text">
+                <template #proximoRank><strong>{{ $t('tutorial.manilha.p1Forte') }}</strong></template>
+              </i18n>
               <div class="d-flex align-center justify-center my-3 flex-wrap">
                 <div class="mini-carta">
                   <span class="mini-carta-rank black--text">7</span>
@@ -145,13 +155,12 @@
                   <span class="mini-carta-rank black--text">8</span>
                 </div>
               </div>
-              <p class="black--text text-center mb-4">
-                Exemplo: vira <strong>7</strong> → manilha é <strong>8</strong>.
-                Cartas de rank manilha ganham de qualquer outra carta, até do 3!
-              </p>
+              <i18n path="tutorial.manilha.exemplo" tag="p" class="black--text text-center mb-4">
+                <template #vira><strong>7</strong></template>
+                <template #manilha><strong>8</strong></template>
+              </i18n>
               <p class="black--text mb-2">
-                Quando duas manilhas se encontram, desempata pelo naipe, do
-                mais fraco pro mais forte:
+                {{ $t('tutorial.manilha.p2') }}
               </p>
               <div class="mini-carta-row justify-center">
                 <div
@@ -169,7 +178,7 @@
                 </div>
               </div>
               <p class="black--text mt-3 mb-0 text-center">
-                Paus é a manilha mais forte, ouros é a mais fraca.
+                {{ $t('tutorial.manilha.p3') }}
               </p>
             </div>
           </v-window-item>
@@ -178,21 +187,19 @@
           <v-window-item :value="5">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                🔄 Empate na mesa
+                {{ $t('tutorial.empate.titulo') }}
               </h3>
+              <i18n path="tutorial.empate.p1" tag="p" class="black--text">
+                <template #mesmoRank><strong>{{ $t('tutorial.empate.p1Forte') }}</strong></template>
+              </i18n>
               <p class="black--text">
-                Se duas cartas do <strong>mesmo rank</strong> (que não sejam
-                manilha) caírem na mesma vaza, elas se anulam em pares: é como
-                se as duas nem tivessem sido jogadas.
+                {{ $t('tutorial.empate.p2') }}
               </p>
-              <p class="black--text">
-                A anulação acontece na ordem em que as cartas caíram na mesa,
-                sempre formando pares.
-              </p>
-              <p class="black--text mb-0">
-                <strong>Manilhas nunca se anulam</strong> — nem entre si, nem
-                com outras cartas.
-              </p>
+              <i18n path="tutorial.empate.p3" tag="p" class="black--text mb-0">
+                <template #manilhasNuncaAnulam>
+                  <strong>{{ $t('tutorial.empate.p3Forte') }}</strong>
+                </template>
+              </i18n>
             </div>
           </v-window-item>
 
@@ -200,16 +207,13 @@
           <v-window-item :value="6">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                🙈 Rodada às cegas
+                {{ $t('tutorial.cegas.titulo') }}
               </h3>
-              <p class="black--text">
-                Quando a rodada tem só <strong>1 carta</strong> na mão, ela
-                vira "às cegas": você não vê a sua própria carta, ela fica
-                virada pra baixo só pra você.
-              </p>
+              <i18n path="tutorial.cegas.p1" tag="p" class="black--text">
+                <template #umaCarta><strong>{{ $t('tutorial.cegas.p1Forte') }}</strong></template>
+              </i18n>
               <p class="black--text mb-0">
-                Os outros jogadores enxergam a sua carta normalmente — você
-                precisa palpitar e jogar olhando só as cartas dos adversários.
+                {{ $t('tutorial.cegas.p2') }}
               </p>
             </div>
           </v-window-item>
@@ -218,20 +222,16 @@
           <v-window-item :value="7">
             <div class="pa-6">
               <h3 class="text-h6 font-weight-bold black--text mb-3">
-                ❤️ Vidas e vitória
+                {{ $t('tutorial.vidas.titulo') }}
               </h3>
+              <i18n path="tutorial.vidas.p1" tag="p" class="black--text">
+                <template #errouOPalpite><strong>{{ $t('tutorial.vidas.p1Forte') }}</strong></template>
+              </i18n>
               <p class="black--text">
-                No final da rodada, quem <strong>errou o palpite</strong>
-                perde vidas: a diferença entre o que apostou e o que realmente
-                fez em vazas.
-              </p>
-              <p class="black--text">
-                Errou por 2? Perde 2 vidas. Errou por 3? Perde 3 vidas. Quanto
-                mais longe do palpite, mais caro sai.
+                {{ $t('tutorial.vidas.p2') }}
               </p>
               <p class="black--text mb-4">
-                Cada jogador começa com 5 vidas. Quem chega a 0 é eliminado.
-                O último que sobrar em pé vence a partida!
+                {{ $t('tutorial.vidas.p3') }}
               </p>
               <v-btn
                 block
@@ -241,7 +241,7 @@
                 class="font-weight-bold"
                 @click="fechar"
               >
-                Entendi, bora jogar!
+                {{ $t('tutorial.vidas.botao') }}
               </v-btn>
             </div>
           </v-window-item>
@@ -258,7 +258,7 @@
             type="button"
             class="tutorial-dot"
             :class="{ 'tutorial-dot--ativo': (i - 1) === passo }"
-            :aria-label="'Ir para o passo ' + i"
+            :aria-label="$t('tutorial.irParaPasso', { n: i })"
             @click="passo = i - 1"
           />
         </div>
@@ -269,10 +269,12 @@
             @click="anterior"
           >
             <v-icon left>mdi-chevron-left</v-icon>
-            Anterior
+            {{ $t('comum.anterior') }}
           </v-btn>
 
-          <span class="black--text text-caption">{{ passo + 1 }} / 8</span>
+          <span class="black--text text-caption">
+            {{ $t('tutorial.contador', { atual: passo + 1, total: 8 }) }}
+          </span>
 
           <v-btn
             v-if="passo < 7"
@@ -280,7 +282,7 @@
             color="green darken-1"
             @click="proximo"
           >
-            Próximo
+            {{ $t('comum.proximo') }}
             <v-icon right>mdi-chevron-right</v-icon>
           </v-btn>
           <v-btn
@@ -289,7 +291,7 @@
             color="green darken-1"
             @click="fechar"
           >
-            Fechar
+            {{ $t('comum.fechar') }}
           </v-btn>
         </div>
       </div>
@@ -298,11 +300,14 @@
 </template>
 
 <script>
+import { RANKS } from '../constants/cartas'
+
+// Só a parte visual do naipe; o nome exibido vem do idioma ativo (naipes.*).
 const NAIPES = {
-  ouros: { simbolo: '♦', cor: 'red--text', label: 'Ouros' },
-  espadas: { simbolo: '♠', cor: 'black--text', label: 'Espadas' },
-  copas: { simbolo: '♥', cor: 'red--text', label: 'Copas' },
-  paus: { simbolo: '♣', cor: 'black--text', label: 'Paus' },
+  ouros: { simbolo: '♦', cor: 'red--text' },
+  espadas: { simbolo: '♠', cor: 'black--text' },
+  copas: { simbolo: '♥', cor: 'red--text' },
+  paus: { simbolo: '♣', cor: 'black--text' },
 }
 
 export default {
@@ -318,17 +323,32 @@ export default {
   data () {
     return {
       passo: 0,
-      sequenciaRanks: ['4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A', '2', '3'],
-      naipesOrdenados: [
-        { nome: 'ouros', ...NAIPES.ouros },
-        { nome: 'espadas', ...NAIPES.espadas },
-        { nome: 'copas', ...NAIPES.copas },
-        { nome: 'paus', ...NAIPES.paus },
-      ],
     }
   },
 
   computed: {
+    // Ranks da mais forte pra mais fraca (RANKS vem em ordem crescente), com
+    // uma força relativa em % só pra dimensionar a barra da listagem.
+    rankingForca () {
+      const decrescente = [...RANKS].reverse()
+      const total = decrescente.length
+      return decrescente.map((rank, indice) => ({
+        rank,
+        posicao: indice + 1,
+        ultima: indice === total - 1,
+        forca: Math.round(((total - indice) / total) * 100),
+      }))
+    },
+
+    // Do naipe mais fraco pro mais forte no desempate entre manilhas.
+    naipesOrdenados () {
+      return ['ouros', 'espadas', 'copas', 'paus'].map((nome) => ({
+        nome,
+        ...NAIPES[nome],
+        label: this.$t('naipes.' + nome),
+      }))
+    },
+
     dialog: {
       get () {
         return this.value
@@ -371,10 +391,125 @@ export default {
 .tutorial-card {
   height: 100%;
   max-height: 100%;
+  border-radius: 12px;
 }
 
 .tutorial-header {
   flex: 0 0 auto;
+  /* Filete dourado separando o "feltro" do cabeçalho do corpo em papel. */
+  border-bottom: 2px solid var(--ouro);
+  box-shadow: inset 0 -6px 12px rgba(0, 0, 0, .25);
+}
+
+/* Corpo em papel, pra contrastar com o feltro do cabeçalho. */
+.tutorial-body {
+  background-color: var(--carta-papel);
+  background-image: linear-gradient(180deg, #ffffff 0%, var(--carta-papel) 100%);
+}
+
+.tutorial-body >>> h3 {
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif;
+}
+
+/* ---- Listagem de força das cartas ---- */
+
+.ranking {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.ranking-linha {
+  display: grid;
+  grid-template-columns: 22px 34px 1fr auto;
+  align-items: center;
+  gap: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, .025);
+}
+
+.ranking-linha--manilha {
+  background: linear-gradient(90deg, rgba(255, 210, 74, .35), rgba(255, 210, 74, .08));
+  margin-bottom: 5px;
+}
+
+.ranking-posicao {
+  font-size: .7rem;
+  font-weight: 700;
+  color: rgba(0, 0, 0, .45);
+  text-align: right;
+}
+
+.ranking-posicao--coroa {
+  text-align: center;
+}
+
+/* Cada item da listagem é uma carta em miniatura, não só um número. */
+.ranking-carta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 30px;
+  border-radius: 4px;
+  font-weight: 800;
+  font-size: .85rem;
+  color: var(--carta-preto);
+  background-color: var(--carta-papel);
+  background-image: linear-gradient(150deg, #fff, var(--carta-papel-sombra));
+  box-shadow:
+    0 1px 2px rgba(0, 0, 0, .28),
+    inset 0 0 0 1px var(--carta-borda);
+}
+
+.ranking-carta--topo {
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, .3),
+    inset 0 0 0 2px var(--ouro);
+}
+
+.ranking-carta--manilha {
+  color: var(--ouro-escuro);
+  font-size: 1rem;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, .3),
+    inset 0 0 0 2px var(--ouro);
+}
+
+.ranking-barra {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, .08);
+  overflow: hidden;
+}
+
+.ranking-barra-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #66bb6a, #2e7d32);
+}
+
+.ranking-barra-fill--manilha {
+  background: linear-gradient(90deg, #ffe17a, var(--ouro-escuro));
+}
+
+.ranking-nome {
+  font-size: .72rem;
+  min-width: 62px;
+  text-align: right;
+}
+
+.ranking-nota {
+  color: rgba(0, 0, 0, .5);
+  font-style: italic;
+}
+
+.ranking-nota--forte {
+  color: var(--ouro-escuro);
+  font-style: normal;
+  font-weight: 700;
 }
 
 .tutorial-body {

@@ -1,7 +1,7 @@
 <template>
   <v-bottom-sheet v-if="$vuetify.breakpoint.xsOnly" v-model="dialog" inset>
     <v-card v-if="resultado">
-      <v-card-title>Resultado da rodada {{ resultado.rodada }}</v-card-title>
+      <v-card-title>{{ $t('resultado.titulo', { n: resultado.rodada }) }}</v-card-title>
 
       <v-divider />
 
@@ -20,7 +20,7 @@
               {{ r.name }}
             </v-list-item-title>
             <v-list-item-subtitle>
-              palpitou {{ r.bid }} · fez {{ r.made }}
+              {{ $t('resultado.palpitouFez', { bid: r.bid, made: r.made }) }}
             </v-list-item-subtitle>
             <div class="mt-1 coracoes">
               <v-icon
@@ -38,13 +38,13 @@
             <template v-if="r.delta === 0">
               <v-icon color="success">mdi-check-circle</v-icon>
               <div class="caption success--text font-weight-bold mt-1">
-                acertou
+                {{ $t('resultado.acertou') }}
               </div>
             </template>
             <template v-else>
               <v-icon color="error">mdi-close-circle</v-icon>
               <div class="caption error--text font-weight-bold mt-1">
-                -{{ r.delta }} vida{{ r.delta > 1 ? 's' : '' }}
+                {{ $tc('resultado.perdeuVidas', r.delta, { n: r.delta }) }}
               </div>
             </template>
           </v-list-item-action>
@@ -53,14 +53,14 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="fechar">Fechar</v-btn>
+        <v-btn text @click="fechar">{{ $t('comum.fechar') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-bottom-sheet>
 
   <v-dialog v-else v-model="dialog" max-width="420">
     <v-card v-if="resultado">
-      <v-card-title>Resultado da rodada {{ resultado.rodada }}</v-card-title>
+      <v-card-title>{{ $t('resultado.titulo', { n: resultado.rodada }) }}</v-card-title>
 
       <v-divider />
 
@@ -79,7 +79,7 @@
               {{ r.name }}
             </v-list-item-title>
             <v-list-item-subtitle>
-              palpitou {{ r.bid }} · fez {{ r.made }}
+              {{ $t('resultado.palpitouFez', { bid: r.bid, made: r.made }) }}
             </v-list-item-subtitle>
             <div class="mt-1 coracoes">
               <v-icon
@@ -97,13 +97,13 @@
             <template v-if="r.delta === 0">
               <v-icon color="success">mdi-check-circle</v-icon>
               <div class="caption success--text font-weight-bold mt-1">
-                acertou
+                {{ $t('resultado.acertou') }}
               </div>
             </template>
             <template v-else>
               <v-icon color="error">mdi-close-circle</v-icon>
               <div class="caption error--text font-weight-bold mt-1">
-                -{{ r.delta }} vida{{ r.delta > 1 ? 's' : '' }}
+                {{ $tc('resultado.perdeuVidas', r.delta, { n: r.delta }) }}
               </div>
             </template>
           </v-list-item-action>
@@ -112,7 +112,7 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn text @click="fechar">Fechar</v-btn>
+        <v-btn text @click="fechar">{{ $t('comum.fechar') }}</v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>

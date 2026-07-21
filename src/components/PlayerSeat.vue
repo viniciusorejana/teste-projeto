@@ -9,7 +9,7 @@
 
     <p :class="['mb-0', 'mt-1', 'nome-jogador', { 'font-weight-black': destacado }]">
       {{ jogador.name }}
-      <span v-if="souEu">(você)</span>
+      <span v-if="souEu">{{ $t('assento.sufixoVoce') }}</span>
     </p>
 
     <div class="vidas mb-1">
@@ -25,16 +25,18 @@
     </div>
 
     <p v-if="jogador.made > 0" class="caption font-weight-bold mb-1 contador-maos">
-      ✓ {{ jogador.made }} mão(s) na rodada
+      {{ $tc('assento.maosNaRodada', jogador.made, { n: jogador.made }) }}
     </p>
 
-    <v-chip v-if="jogador.eliminated" small color="grey" text-color="white">eliminado</v-chip>
+    <v-chip v-if="jogador.eliminated" small color="grey" text-color="white">
+      {{ $t('assento.eliminado') }}
+    </v-chip>
     <v-chip
       v-else-if="jogador.bid !== null && jogador.bid !== undefined"
       small
       class="chip-palpite"
     >
-      palpite {{ jogador.bid }}
+      {{ $t('assento.palpite', { valor: jogador.bid }) }}
     </v-chip>
 
     <transition name="badge-transicao">
@@ -49,8 +51,12 @@
     </transition>
 
     <transition name="etiqueta-transicao">
-      <div v-if="dealer" key="dealer" class="etiqueta etiqueta-dealer">embaralha</div>
-      <div v-else-if="destacado" key="vez" class="etiqueta etiqueta-vez">vez</div>
+      <div v-if="dealer" key="dealer" class="etiqueta etiqueta-dealer">
+        {{ $t('assento.embaralha') }}
+      </div>
+      <div v-else-if="destacado" key="vez" class="etiqueta etiqueta-vez">
+        {{ $t('assento.vez') }}
+      </div>
     </transition>
   </v-card>
 </template>
@@ -82,11 +88,19 @@ export default {
 </script>
 
 <style scoped>
+/* O assento é lido como uma carta pousada na mesa: mesmo papel, mesmo raio de
+   canto e sombra projetada das cartas de verdade. */
 .assento {
   border: 3px solid transparent;
   position: relative;
-  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), border-color .25s ease, margin-bottom .25s ease;
+  transition: transform .3s cubic-bezier(.34, 1.56, .64, 1), border-color .25s ease, margin-bottom .25s ease, box-shadow .25s ease;
   min-width: 110px;
+  border-radius: 10px !important;
+  background-color: var(--carta-papel) !important;
+  background-image: linear-gradient(155deg, #ffffff 0%, var(--carta-papel) 45%, var(--carta-papel-sombra) 100%) !important;
+  box-shadow:
+    0 3px 8px rgba(0, 0, 0, .4),
+    inset 0 0 0 1px rgba(0, 0, 0, .1) !important;
 }
 
 .assento-compacto {
@@ -115,8 +129,12 @@ export default {
 }
 
 .assento-vez {
-  border-color: #ffd600;
+  border-color: var(--ouro);
   transform: scale(1.05);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, .45),
+    0 0 16px rgba(255, 210, 74, .5),
+    inset 0 0 0 1px rgba(0, 0, 0, .1) !important;
 }
 
 .vidas {

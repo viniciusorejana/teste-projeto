@@ -17,6 +17,18 @@ function ack (callback, payload) {
   if (typeof callback === 'function') callback(payload)
 }
 
+// Erros de regra do jogo (game/erros.js) viajam com um código estável e seus
+// parâmetros, pra que o cliente possa traduzi-los no idioma escolhido pelo
+// jogador. `error` segue junto como texto de fallback.
+function respostaDeErro (err) {
+  return {
+    ok: false,
+    error: err.message,
+    errorCode: err.codigo || null,
+    errorParams: err.params || null,
+  }
+}
+
 function registerSocketHandlers (io, {
   tempoEsperaVazaMs = TEMPO_ESPERA_VAZA_MS_PADRAO,
   tempoLimiteTurnoMs = TEMPO_LIMITE_TURNO_MS_PADRAO,
@@ -162,7 +174,7 @@ function registerSocketHandlers (io, {
   io.on('connection', (socket) => {
     socket.on('room:create', ({ name, color, autoPlayStrategy } = {}, callback) => {
       if (!name || !name.trim()) {
-        return ack(callback, { ok: false, error: 'Informe um nome.' })
+        return ack(callback, { ok: false, error: 'Informe um nome.', errorCode: 'SEM_NOME' })
       }
       const game = criarSala()
       const playerToken = gerarTokenJogador()
@@ -177,14 +189,14 @@ function registerSocketHandlers (io, {
 
     socket.on('room:join', ({ roomCode, name, color, autoPlayStrategy } = {}, callback) => {
       const game = obterSala(roomCode)
-      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.' })
-      if (!name || !name.trim()) return ack(callback, { ok: false, error: 'Informe um nome.' })
+      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.', errorCode: 'SALA_NAO_ENCONTRADA' })
+      if (!name || !name.trim()) return ack(callback, { ok: false, error: 'Informe um nome.', errorCode: 'SEM_NOME' })
 
       const playerToken = gerarTokenJogador()
       try {
         game.adicionarJogador({ id: playerToken, name: name.trim(), color, socketId: socket.id, autoPlayStrategy })
       } catch (err) {
-        return ack(callback, { ok: false, error: err.message })
+        return ack(callback, respostaDeErro(err))
       }
 
       socket.join(game.roomCode)
@@ -197,12 +209,12 @@ function registerSocketHandlers (io, {
 
     socket.on('room:rejoin', ({ roomCode, playerToken } = {}, callback) => {
       const game = obterSala(roomCode)
-      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.' })
+      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.', errorCode: 'SALA_NAO_ENCONTRADA' })
 
       try {
         game.reconectarJogador(playerToken, socket.id)
       } catch (err) {
-        return ack(callback, { ok: false, error: err.message })
+        return ack(callback, respostaDeErro(err))
       }
 
       socket.join(game.roomCode)
@@ -216,12 +228,12 @@ function registerSocketHandlers (io, {
     function comAcaoDeJogo (executar) {
       return (payload, callback) => {
         const game = obterSala(socket.data.roomCode)
-        if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.' })
+        if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.', errorCode: 'SALA_NAO_ENCONTRADA' })
 
         try {
           executar(game, payload || {})
         } catch (err) {
-          return ack(callback, { ok: false, error: err.message })
+          return ack(callback, respostaDeErro(err))
         }
 
         ack(callback, { ok: true })
@@ -247,13 +259,13 @@ function registerSocketHandlers (io, {
 
     socket.on('card:play', (payload, callback) => {
       const game = obterSala(socket.data.roomCode)
-      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.' })
+      if (!game) return ack(callback, { ok: false, error: 'Sala não encontrada.', errorCode: 'SALA_NAO_ENCONTRADA' })
 
       let vazaResolvida
       try {
         vazaResolvida = game.jogarCarta(socket.data.playerToken, (payload || {}).cartaId)
       } catch (err) {
-        return ack(callback, { ok: false, error: err.message })
+        return ack(callback, respostaDeErro(err))
       }
 
       ack(callback, { ok: true })

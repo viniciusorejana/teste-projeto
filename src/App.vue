@@ -1,6 +1,13 @@
 <template>
-  <v-app class="tudo">
+  <v-app class="tudo textura-feltro">
     <router-view />
+
+    <!-- Seletor de idioma global: fica acima de qualquer tela (início, lobby,
+         mesa) pra que dê pra trocar de idioma a qualquer momento. Na mesa ele
+         cai exatamente sobre o espaçador vazio da barra superior. -->
+    <div class="seletor-idioma-fixo">
+      <SeletorIdioma />
+    </div>
 
     <v-btn
       v-if="mostrarFabAjuda"
@@ -10,7 +17,7 @@
       right
       color="secondary"
       class="fab-ajuda"
-      aria-label="Como jogar"
+      :aria-label="$t('comum.comoJogar')"
       @click="abrirTutorial"
     >
       <v-icon color="#212121">mdi-help</v-icon>
@@ -23,11 +30,12 @@
 <script>
 import { mapState } from 'vuex'
 import TutorialDialog from './components/TutorialDialog.vue'
+import SeletorIdioma from './components/SeletorIdioma.vue'
 
 export default {
   name: 'App',
 
-  components: { TutorialDialog },
+  components: { TutorialDialog, SeletorIdioma },
 
   computed: {
     ...mapState(['gameState', 'mostrarTutorial']),
@@ -62,8 +70,9 @@ export default {
 </script>
 
 <style scoped>
+/* O fundo agora vem da textura de feltro (styles/tema.css); aqui fica só o
+   comportamento de rolagem. */
 .tudo {
-  background: radial-gradient(ellipse at center, #1e6b26 0%, #123d16 100%) !important;
   overflow-x: hidden !important;
   overflow-y: auto !important;
   /* Some telas (mais jogadores, mão grande) passam de 100vh de altura; deixa
@@ -81,6 +90,13 @@ export default {
   bottom: calc(16px + env(safe-area-inset-bottom)) !important;
   right: calc(16px + env(safe-area-inset-right)) !important;
   z-index: 20;
+}
+
+.seletor-idioma-fixo {
+  position: fixed;
+  top: calc(6px + env(safe-area-inset-top));
+  right: calc(6px + env(safe-area-inset-right));
+  z-index: 25;
 }
 </style>
 
